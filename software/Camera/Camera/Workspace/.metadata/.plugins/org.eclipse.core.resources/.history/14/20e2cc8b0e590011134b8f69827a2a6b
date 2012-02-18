@@ -1,0 +1,153 @@
+################################################################################
+# Automatically-generated file. Do not edit!
+################################################################################
+
+# Add inputs and outputs from these tool invocations to the build variables 
+C_SRCS += \
+C:/StellarisWare/boards/ek-lm3s6965/qs_ek-lm3s6965/audio.c \
+C:/StellarisWare/boards/ek-lm3s6965/qs_ek-lm3s6965/enet.c \
+C:/StellarisWare/boards/ek-lm3s6965/qs_ek-lm3s6965/fs_qs.c \
+C:/StellarisWare/boards/ek-lm3s6965/qs_ek-lm3s6965/game.c \
+C:/StellarisWare/boards/ek-lm3s6965/qs_ek-lm3s6965/images.c \
+C:/StellarisWare/boards/ek-lm3s6965/qs_ek-lm3s6965/qs_ek-lm3s6965.c \
+C:/StellarisWare/boards/ek-lm3s6965/qs_ek-lm3s6965/random.c \
+C:/StellarisWare/boards/ek-lm3s6965/qs_ek-lm3s6965/screen_saver.c \
+C:/StellarisWare/boards/ek-lm3s6965/qs_ek-lm3s6965/sounds.c \
+C:/StellarisWare/boards/ek-lm3s6965/qs_ek-lm3s6965/startup_ccs.c 
+
+CMD_SRCS += \
+C:/StellarisWare/boards/ek-lm3s6965/qs_ek-lm3s6965/qs_ek-lm3s6965_ccs.cmd 
+
+OBJS += \
+./audio.obj \
+./enet.obj \
+./fs_qs.obj \
+./game.obj \
+./images.obj \
+./qs_ek-lm3s6965.obj \
+./random.obj \
+./screen_saver.obj \
+./sounds.obj \
+./startup_ccs.obj 
+
+C_DEPS += \
+./audio.pp \
+./enet.pp \
+./fs_qs.pp \
+./game.pp \
+./images.pp \
+./qs_ek-lm3s6965.pp \
+./random.pp \
+./screen_saver.pp \
+./sounds.pp \
+./startup_ccs.pp 
+
+OBJS__QTD += \
+".\audio.obj" \
+".\enet.obj" \
+".\fs_qs.obj" \
+".\game.obj" \
+".\images.obj" \
+".\qs_ek-lm3s6965.obj" \
+".\random.obj" \
+".\screen_saver.obj" \
+".\sounds.obj" \
+".\startup_ccs.obj" 
+
+C_DEPS__QTD += \
+".\audio.pp" \
+".\enet.pp" \
+".\fs_qs.pp" \
+".\game.pp" \
+".\images.pp" \
+".\qs_ek-lm3s6965.pp" \
+".\random.pp" \
+".\screen_saver.pp" \
+".\sounds.pp" \
+".\startup_ccs.pp" 
+
+C_SRCS_QUOTED += \
+"C:/StellarisWare/boards/ek-lm3s6965/qs_ek-lm3s6965/audio.c" \
+"C:/StellarisWare/boards/ek-lm3s6965/qs_ek-lm3s6965/enet.c" \
+"C:/StellarisWare/boards/ek-lm3s6965/qs_ek-lm3s6965/fs_qs.c" \
+"C:/StellarisWare/boards/ek-lm3s6965/qs_ek-lm3s6965/game.c" \
+"C:/StellarisWare/boards/ek-lm3s6965/qs_ek-lm3s6965/images.c" \
+"C:/StellarisWare/boards/ek-lm3s6965/qs_ek-lm3s6965/qs_ek-lm3s6965.c" \
+"C:/StellarisWare/boards/ek-lm3s6965/qs_ek-lm3s6965/random.c" \
+"C:/StellarisWare/boards/ek-lm3s6965/qs_ek-lm3s6965/screen_saver.c" \
+"C:/StellarisWare/boards/ek-lm3s6965/qs_ek-lm3s6965/sounds.c" \
+"C:/StellarisWare/boards/ek-lm3s6965/qs_ek-lm3s6965/startup_ccs.c" 
+
+
+# Each subdirectory must supply rules for building sources it contributes
+audio.obj: C:/StellarisWare/boards/ek-lm3s6965/qs_ek-lm3s6965/audio.c $(GEN_OPTS) $(GEN_SRCS)
+	@echo 'Building file: $<'
+	@echo 'Invoking: Compiler'
+	"C:/Users/Digby/Desktop/New Folder/ccsv4/tools/compiler/tms470/bin/cl470" -mv7M3 -g -O2 --gcc --define=ccs --define=PART_LM3S6965 --include_path="C:/Users/Digby/Desktop/New Folder/ccsv4/tools/compiler/tms470/include" --include_path="C:/StellarisWare/boards/ek-lm3s6965/qs_ek-lm3s6965/ccs/../.." --include_path="C:/StellarisWare/boards/ek-lm3s6965/qs_ek-lm3s6965/ccs/../../../.." --include_path="C:/StellarisWare/boards/ek-lm3s6965/qs_ek-lm3s6965/ccs/.." --include_path="C:/StellarisWare/boards/ek-lm3s6965/qs_ek-lm3s6965/ccs/../../../../third_party/lwip-1.3.2/src/include" --include_path="C:/StellarisWare/boards/ek-lm3s6965/qs_ek-lm3s6965/ccs/../../../../third_party/lwip-1.3.2/src/include/ipv4" --include_path="C:/StellarisWare/boards/ek-lm3s6965/qs_ek-lm3s6965/ccs/../../../../third_party/lwip-1.3.2/apps" --include_path="C:/StellarisWare/boards/ek-lm3s6965/qs_ek-lm3s6965/ccs/../../../../third_party/lwip-1.3.2/ports/stellaris/include" --diag_warning=225 -me --gen_func_subsections --abi=eabi --code_state=16 --ual --preproc_with_compile --preproc_dependency="audio.pp" $(GEN_OPTS_QUOTED) $(subst #,$(wildcard $(subst $(SPACE),\$(SPACE),$<)),"#")
+	@echo 'Finished building: $<'
+	@echo ' '
+
+enet.obj: C:/StellarisWare/boards/ek-lm3s6965/qs_ek-lm3s6965/enet.c $(GEN_OPTS) $(GEN_SRCS)
+	@echo 'Building file: $<'
+	@echo 'Invoking: Compiler'
+	"C:/Users/Digby/Desktop/New Folder/ccsv4/tools/compiler/tms470/bin/cl470" -mv7M3 -g -O2 --gcc --define=ccs --define=PART_LM3S6965 --include_path="C:/Users/Digby/Desktop/New Folder/ccsv4/tools/compiler/tms470/include" --include_path="C:/StellarisWare/boards/ek-lm3s6965/qs_ek-lm3s6965/ccs/../.." --include_path="C:/StellarisWare/boards/ek-lm3s6965/qs_ek-lm3s6965/ccs/../../../.." --include_path="C:/StellarisWare/boards/ek-lm3s6965/qs_ek-lm3s6965/ccs/.." --include_path="C:/StellarisWare/boards/ek-lm3s6965/qs_ek-lm3s6965/ccs/../../../../third_party/lwip-1.3.2/src/include" --include_path="C:/StellarisWare/boards/ek-lm3s6965/qs_ek-lm3s6965/ccs/../../../../third_party/lwip-1.3.2/src/include/ipv4" --include_path="C:/StellarisWare/boards/ek-lm3s6965/qs_ek-lm3s6965/ccs/../../../../third_party/lwip-1.3.2/apps" --include_path="C:/StellarisWare/boards/ek-lm3s6965/qs_ek-lm3s6965/ccs/../../../../third_party/lwip-1.3.2/ports/stellaris/include" --diag_warning=225 -me --gen_func_subsections --abi=eabi --code_state=16 --ual --preproc_with_compile --preproc_dependency="enet.pp" $(GEN_OPTS_QUOTED) $(subst #,$(wildcard $(subst $(SPACE),\$(SPACE),$<)),"#")
+	@echo 'Finished building: $<'
+	@echo ' '
+
+fs_qs.obj: C:/StellarisWare/boards/ek-lm3s6965/qs_ek-lm3s6965/fs_qs.c $(GEN_OPTS) $(GEN_SRCS)
+	@echo 'Building file: $<'
+	@echo 'Invoking: Compiler'
+	"C:/Users/Digby/Desktop/New Folder/ccsv4/tools/compiler/tms470/bin/cl470" -mv7M3 -g -O2 --gcc --define=ccs --define=PART_LM3S6965 --include_path="C:/Users/Digby/Desktop/New Folder/ccsv4/tools/compiler/tms470/include" --include_path="C:/StellarisWare/boards/ek-lm3s6965/qs_ek-lm3s6965/ccs/../.." --include_path="C:/StellarisWare/boards/ek-lm3s6965/qs_ek-lm3s6965/ccs/../../../.." --include_path="C:/StellarisWare/boards/ek-lm3s6965/qs_ek-lm3s6965/ccs/.." --include_path="C:/StellarisWare/boards/ek-lm3s6965/qs_ek-lm3s6965/ccs/../../../../third_party/lwip-1.3.2/src/include" --include_path="C:/StellarisWare/boards/ek-lm3s6965/qs_ek-lm3s6965/ccs/../../../../third_party/lwip-1.3.2/src/include/ipv4" --include_path="C:/StellarisWare/boards/ek-lm3s6965/qs_ek-lm3s6965/ccs/../../../../third_party/lwip-1.3.2/apps" --include_path="C:/StellarisWare/boards/ek-lm3s6965/qs_ek-lm3s6965/ccs/../../../../third_party/lwip-1.3.2/ports/stellaris/include" --diag_warning=225 -me --gen_func_subsections --abi=eabi --code_state=16 --ual --preproc_with_compile --preproc_dependency="fs_qs.pp" $(GEN_OPTS_QUOTED) $(subst #,$(wildcard $(subst $(SPACE),\$(SPACE),$<)),"#")
+	@echo 'Finished building: $<'
+	@echo ' '
+
+game.obj: C:/StellarisWare/boards/ek-lm3s6965/qs_ek-lm3s6965/game.c $(GEN_OPTS) $(GEN_SRCS)
+	@echo 'Building file: $<'
+	@echo 'Invoking: Compiler'
+	"C:/Users/Digby/Desktop/New Folder/ccsv4/tools/compiler/tms470/bin/cl470" -mv7M3 -g -O2 --gcc --define=ccs --define=PART_LM3S6965 --include_path="C:/Users/Digby/Desktop/New Folder/ccsv4/tools/compiler/tms470/include" --include_path="C:/StellarisWare/boards/ek-lm3s6965/qs_ek-lm3s6965/ccs/../.." --include_path="C:/StellarisWare/boards/ek-lm3s6965/qs_ek-lm3s6965/ccs/../../../.." --include_path="C:/StellarisWare/boards/ek-lm3s6965/qs_ek-lm3s6965/ccs/.." --include_path="C:/StellarisWare/boards/ek-lm3s6965/qs_ek-lm3s6965/ccs/../../../../third_party/lwip-1.3.2/src/include" --include_path="C:/StellarisWare/boards/ek-lm3s6965/qs_ek-lm3s6965/ccs/../../../../third_party/lwip-1.3.2/src/include/ipv4" --include_path="C:/StellarisWare/boards/ek-lm3s6965/qs_ek-lm3s6965/ccs/../../../../third_party/lwip-1.3.2/apps" --include_path="C:/StellarisWare/boards/ek-lm3s6965/qs_ek-lm3s6965/ccs/../../../../third_party/lwip-1.3.2/ports/stellaris/include" --diag_warning=225 -me --gen_func_subsections --abi=eabi --code_state=16 --ual --preproc_with_compile --preproc_dependency="game.pp" $(GEN_OPTS_QUOTED) $(subst #,$(wildcard $(subst $(SPACE),\$(SPACE),$<)),"#")
+	@echo 'Finished building: $<'
+	@echo ' '
+
+images.obj: C:/StellarisWare/boards/ek-lm3s6965/qs_ek-lm3s6965/images.c $(GEN_OPTS) $(GEN_SRCS)
+	@echo 'Building file: $<'
+	@echo 'Invoking: Compiler'
+	"C:/Users/Digby/Desktop/New Folder/ccsv4/tools/compiler/tms470/bin/cl470" -mv7M3 -g -O2 --gcc --define=ccs --define=PART_LM3S6965 --include_path="C:/Users/Digby/Desktop/New Folder/ccsv4/tools/compiler/tms470/include" --include_path="C:/StellarisWare/boards/ek-lm3s6965/qs_ek-lm3s6965/ccs/../.." --include_path="C:/StellarisWare/boards/ek-lm3s6965/qs_ek-lm3s6965/ccs/../../../.." --include_path="C:/StellarisWare/boards/ek-lm3s6965/qs_ek-lm3s6965/ccs/.." --include_path="C:/StellarisWare/boards/ek-lm3s6965/qs_ek-lm3s6965/ccs/../../../../third_party/lwip-1.3.2/src/include" --include_path="C:/StellarisWare/boards/ek-lm3s6965/qs_ek-lm3s6965/ccs/../../../../third_party/lwip-1.3.2/src/include/ipv4" --include_path="C:/StellarisWare/boards/ek-lm3s6965/qs_ek-lm3s6965/ccs/../../../../third_party/lwip-1.3.2/apps" --include_path="C:/StellarisWare/boards/ek-lm3s6965/qs_ek-lm3s6965/ccs/../../../../third_party/lwip-1.3.2/ports/stellaris/include" --diag_warning=225 -me --gen_func_subsections --abi=eabi --code_state=16 --ual --preproc_with_compile --preproc_dependency="images.pp" $(GEN_OPTS_QUOTED) $(subst #,$(wildcard $(subst $(SPACE),\$(SPACE),$<)),"#")
+	@echo 'Finished building: $<'
+	@echo ' '
+
+qs_ek-lm3s6965.obj: C:/StellarisWare/boards/ek-lm3s6965/qs_ek-lm3s6965/qs_ek-lm3s6965.c $(GEN_OPTS) $(GEN_SRCS)
+	@echo 'Building file: $<'
+	@echo 'Invoking: Compiler'
+	"C:/Users/Digby/Desktop/New Folder/ccsv4/tools/compiler/tms470/bin/cl470" -mv7M3 -g -O2 --gcc --define=ccs --define=PART_LM3S6965 --include_path="C:/Users/Digby/Desktop/New Folder/ccsv4/tools/compiler/tms470/include" --include_path="C:/StellarisWare/boards/ek-lm3s6965/qs_ek-lm3s6965/ccs/../.." --include_path="C:/StellarisWare/boards/ek-lm3s6965/qs_ek-lm3s6965/ccs/../../../.." --include_path="C:/StellarisWare/boards/ek-lm3s6965/qs_ek-lm3s6965/ccs/.." --include_path="C:/StellarisWare/boards/ek-lm3s6965/qs_ek-lm3s6965/ccs/../../../../third_party/lwip-1.3.2/src/include" --include_path="C:/StellarisWare/boards/ek-lm3s6965/qs_ek-lm3s6965/ccs/../../../../third_party/lwip-1.3.2/src/include/ipv4" --include_path="C:/StellarisWare/boards/ek-lm3s6965/qs_ek-lm3s6965/ccs/../../../../third_party/lwip-1.3.2/apps" --include_path="C:/StellarisWare/boards/ek-lm3s6965/qs_ek-lm3s6965/ccs/../../../../third_party/lwip-1.3.2/ports/stellaris/include" --diag_warning=225 -me --gen_func_subsections --abi=eabi --code_state=16 --ual --preproc_with_compile --preproc_dependency="qs_ek-lm3s6965.pp" $(GEN_OPTS_QUOTED) $(subst #,$(wildcard $(subst $(SPACE),\$(SPACE),$<)),"#")
+	@echo 'Finished building: $<'
+	@echo ' '
+
+random.obj: C:/StellarisWare/boards/ek-lm3s6965/qs_ek-lm3s6965/random.c $(GEN_OPTS) $(GEN_SRCS)
+	@echo 'Building file: $<'
+	@echo 'Invoking: Compiler'
+	"C:/Users/Digby/Desktop/New Folder/ccsv4/tools/compiler/tms470/bin/cl470" -mv7M3 -g -O2 --gcc --define=ccs --define=PART_LM3S6965 --include_path="C:/Users/Digby/Desktop/New Folder/ccsv4/tools/compiler/tms470/include" --include_path="C:/StellarisWare/boards/ek-lm3s6965/qs_ek-lm3s6965/ccs/../.." --include_path="C:/StellarisWare/boards/ek-lm3s6965/qs_ek-lm3s6965/ccs/../../../.." --include_path="C:/StellarisWare/boards/ek-lm3s6965/qs_ek-lm3s6965/ccs/.." --include_path="C:/StellarisWare/boards/ek-lm3s6965/qs_ek-lm3s6965/ccs/../../../../third_party/lwip-1.3.2/src/include" --include_path="C:/StellarisWare/boards/ek-lm3s6965/qs_ek-lm3s6965/ccs/../../../../third_party/lwip-1.3.2/src/include/ipv4" --include_path="C:/StellarisWare/boards/ek-lm3s6965/qs_ek-lm3s6965/ccs/../../../../third_party/lwip-1.3.2/apps" --include_path="C:/StellarisWare/boards/ek-lm3s6965/qs_ek-lm3s6965/ccs/../../../../third_party/lwip-1.3.2/ports/stellaris/include" --diag_warning=225 -me --gen_func_subsections --abi=eabi --code_state=16 --ual --preproc_with_compile --preproc_dependency="random.pp" $(GEN_OPTS_QUOTED) $(subst #,$(wildcard $(subst $(SPACE),\$(SPACE),$<)),"#")
+	@echo 'Finished building: $<'
+	@echo ' '
+
+screen_saver.obj: C:/StellarisWare/boards/ek-lm3s6965/qs_ek-lm3s6965/screen_saver.c $(GEN_OPTS) $(GEN_SRCS)
+	@echo 'Building file: $<'
+	@echo 'Invoking: Compiler'
+	"C:/Users/Digby/Desktop/New Folder/ccsv4/tools/compiler/tms470/bin/cl470" -mv7M3 -g -O2 --gcc --define=ccs --define=PART_LM3S6965 --include_path="C:/Users/Digby/Desktop/New Folder/ccsv4/tools/compiler/tms470/include" --include_path="C:/StellarisWare/boards/ek-lm3s6965/qs_ek-lm3s6965/ccs/../.." --include_path="C:/StellarisWare/boards/ek-lm3s6965/qs_ek-lm3s6965/ccs/../../../.." --include_path="C:/StellarisWare/boards/ek-lm3s6965/qs_ek-lm3s6965/ccs/.." --include_path="C:/StellarisWare/boards/ek-lm3s6965/qs_ek-lm3s6965/ccs/../../../../third_party/lwip-1.3.2/src/include" --include_path="C:/StellarisWare/boards/ek-lm3s6965/qs_ek-lm3s6965/ccs/../../../../third_party/lwip-1.3.2/src/include/ipv4" --include_path="C:/StellarisWare/boards/ek-lm3s6965/qs_ek-lm3s6965/ccs/../../../../third_party/lwip-1.3.2/apps" --include_path="C:/StellarisWare/boards/ek-lm3s6965/qs_ek-lm3s6965/ccs/../../../../third_party/lwip-1.3.2/ports/stellaris/include" --diag_warning=225 -me --gen_func_subsections --abi=eabi --code_state=16 --ual --preproc_with_compile --preproc_dependency="screen_saver.pp" $(GEN_OPTS_QUOTED) $(subst #,$(wildcard $(subst $(SPACE),\$(SPACE),$<)),"#")
+	@echo 'Finished building: $<'
+	@echo ' '
+
+sounds.obj: C:/StellarisWare/boards/ek-lm3s6965/qs_ek-lm3s6965/sounds.c $(GEN_OPTS) $(GEN_SRCS)
+	@echo 'Building file: $<'
+	@echo 'Invoking: Compiler'
+	"C:/Users/Digby/Desktop/New Folder/ccsv4/tools/compiler/tms470/bin/cl470" -mv7M3 -g -O2 --gcc --define=ccs --define=PART_LM3S6965 --include_path="C:/Users/Digby/Desktop/New Folder/ccsv4/tools/compiler/tms470/include" --include_path="C:/StellarisWare/boards/ek-lm3s6965/qs_ek-lm3s6965/ccs/../.." --include_path="C:/StellarisWare/boards/ek-lm3s6965/qs_ek-lm3s6965/ccs/../../../.." --include_path="C:/StellarisWare/boards/ek-lm3s6965/qs_ek-lm3s6965/ccs/.." --include_path="C:/StellarisWare/boards/ek-lm3s6965/qs_ek-lm3s6965/ccs/../../../../third_party/lwip-1.3.2/src/include" --include_path="C:/StellarisWare/boards/ek-lm3s6965/qs_ek-lm3s6965/ccs/../../../../third_party/lwip-1.3.2/src/include/ipv4" --include_path="C:/StellarisWare/boards/ek-lm3s6965/qs_ek-lm3s6965/ccs/../../../../third_party/lwip-1.3.2/apps" --include_path="C:/StellarisWare/boards/ek-lm3s6965/qs_ek-lm3s6965/ccs/../../../../third_party/lwip-1.3.2/ports/stellaris/include" --diag_warning=225 -me --gen_func_subsections --abi=eabi --code_state=16 --ual --preproc_with_compile --preproc_dependency="sounds.pp" $(GEN_OPTS_QUOTED) $(subst #,$(wildcard $(subst $(SPACE),\$(SPACE),$<)),"#")
+	@echo 'Finished building: $<'
+	@echo ' '
+
+startup_ccs.obj: C:/StellarisWare/boards/ek-lm3s6965/qs_ek-lm3s6965/startup_ccs.c $(GEN_OPTS) $(GEN_SRCS)
+	@echo 'Building file: $<'
+	@echo 'Invoking: Compiler'
+	"C:/Users/Digby/Desktop/New Folder/ccsv4/tools/compiler/tms470/bin/cl470" -mv7M3 -g -O2 --gcc --define=ccs --define=PART_LM3S6965 --include_path="C:/Users/Digby/Desktop/New Folder/ccsv4/tools/compiler/tms470/include" --include_path="C:/StellarisWare/boards/ek-lm3s6965/qs_ek-lm3s6965/ccs/../.." --include_path="C:/StellarisWare/boards/ek-lm3s6965/qs_ek-lm3s6965/ccs/../../../.." --include_path="C:/StellarisWare/boards/ek-lm3s6965/qs_ek-lm3s6965/ccs/.." --include_path="C:/StellarisWare/boards/ek-lm3s6965/qs_ek-lm3s6965/ccs/../../../../third_party/lwip-1.3.2/src/include" --include_path="C:/StellarisWare/boards/ek-lm3s6965/qs_ek-lm3s6965/ccs/../../../../third_party/lwip-1.3.2/src/include/ipv4" --include_path="C:/StellarisWare/boards/ek-lm3s6965/qs_ek-lm3s6965/ccs/../../../../third_party/lwip-1.3.2/apps" --include_path="C:/StellarisWare/boards/ek-lm3s6965/qs_ek-lm3s6965/ccs/../../../../third_party/lwip-1.3.2/ports/stellaris/include" --diag_warning=225 -me --gen_func_subsections --abi=eabi --code_state=16 --ual --preproc_with_compile --preproc_dependency="startup_ccs.pp" $(GEN_OPTS_QUOTED) $(subst #,$(wildcard $(subst $(SPACE),\$(SPACE),$<)),"#")
+	@echo 'Finished building: $<'
+	@echo ' '
+
+

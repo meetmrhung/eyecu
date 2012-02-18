@@ -1,0 +1,319 @@
+################################################################################
+# Automatically-generated file. Do not edit!
+################################################################################
+
+# Add inputs and outputs from these tool invocations to the build variables 
+C_SRCS += \
+C:/StellarisWare/driverlib/adc.c \
+C:/StellarisWare/driverlib/can.c \
+C:/StellarisWare/driverlib/comp.c \
+C:/StellarisWare/driverlib/cpu.c \
+C:/StellarisWare/driverlib/epi.c \
+C:/StellarisWare/driverlib/ethernet.c \
+C:/StellarisWare/driverlib/flash.c \
+C:/StellarisWare/driverlib/gpio.c \
+C:/StellarisWare/driverlib/hibernate.c \
+C:/StellarisWare/driverlib/i2c.c \
+C:/StellarisWare/driverlib/i2s.c \
+C:/StellarisWare/driverlib/interrupt.c \
+C:/StellarisWare/driverlib/mpu.c \
+C:/StellarisWare/driverlib/pwm.c \
+C:/StellarisWare/driverlib/qei.c \
+C:/StellarisWare/driverlib/ssi.c \
+C:/StellarisWare/driverlib/sysctl.c \
+C:/StellarisWare/driverlib/systick.c \
+C:/StellarisWare/driverlib/timer.c \
+C:/StellarisWare/driverlib/uart.c \
+C:/StellarisWare/driverlib/udma.c \
+C:/StellarisWare/driverlib/usb.c \
+C:/StellarisWare/driverlib/watchdog.c 
+
+OBJS += \
+./adc.obj \
+./can.obj \
+./comp.obj \
+./cpu.obj \
+./epi.obj \
+./ethernet.obj \
+./flash.obj \
+./gpio.obj \
+./hibernate.obj \
+./i2c.obj \
+./i2s.obj \
+./interrupt.obj \
+./mpu.obj \
+./pwm.obj \
+./qei.obj \
+./ssi.obj \
+./sysctl.obj \
+./systick.obj \
+./timer.obj \
+./uart.obj \
+./udma.obj \
+./usb.obj \
+./watchdog.obj 
+
+C_DEPS += \
+./adc.pp \
+./can.pp \
+./comp.pp \
+./cpu.pp \
+./epi.pp \
+./ethernet.pp \
+./flash.pp \
+./gpio.pp \
+./hibernate.pp \
+./i2c.pp \
+./i2s.pp \
+./interrupt.pp \
+./mpu.pp \
+./pwm.pp \
+./qei.pp \
+./ssi.pp \
+./sysctl.pp \
+./systick.pp \
+./timer.pp \
+./uart.pp \
+./udma.pp \
+./usb.pp \
+./watchdog.pp 
+
+OBJS__QTD += \
+".\adc.obj" \
+".\can.obj" \
+".\comp.obj" \
+".\cpu.obj" \
+".\epi.obj" \
+".\ethernet.obj" \
+".\flash.obj" \
+".\gpio.obj" \
+".\hibernate.obj" \
+".\i2c.obj" \
+".\i2s.obj" \
+".\interrupt.obj" \
+".\mpu.obj" \
+".\pwm.obj" \
+".\qei.obj" \
+".\ssi.obj" \
+".\sysctl.obj" \
+".\systick.obj" \
+".\timer.obj" \
+".\uart.obj" \
+".\udma.obj" \
+".\usb.obj" \
+".\watchdog.obj" 
+
+C_DEPS__QTD += \
+".\adc.pp" \
+".\can.pp" \
+".\comp.pp" \
+".\cpu.pp" \
+".\epi.pp" \
+".\ethernet.pp" \
+".\flash.pp" \
+".\gpio.pp" \
+".\hibernate.pp" \
+".\i2c.pp" \
+".\i2s.pp" \
+".\interrupt.pp" \
+".\mpu.pp" \
+".\pwm.pp" \
+".\qei.pp" \
+".\ssi.pp" \
+".\sysctl.pp" \
+".\systick.pp" \
+".\timer.pp" \
+".\uart.pp" \
+".\udma.pp" \
+".\usb.pp" \
+".\watchdog.pp" 
+
+C_SRCS_QUOTED += \
+"C:/StellarisWare/driverlib/adc.c" \
+"C:/StellarisWare/driverlib/can.c" \
+"C:/StellarisWare/driverlib/comp.c" \
+"C:/StellarisWare/driverlib/cpu.c" \
+"C:/StellarisWare/driverlib/epi.c" \
+"C:/StellarisWare/driverlib/ethernet.c" \
+"C:/StellarisWare/driverlib/flash.c" \
+"C:/StellarisWare/driverlib/gpio.c" \
+"C:/StellarisWare/driverlib/hibernate.c" \
+"C:/StellarisWare/driverlib/i2c.c" \
+"C:/StellarisWare/driverlib/i2s.c" \
+"C:/StellarisWare/driverlib/interrupt.c" \
+"C:/StellarisWare/driverlib/mpu.c" \
+"C:/StellarisWare/driverlib/pwm.c" \
+"C:/StellarisWare/driverlib/qei.c" \
+"C:/StellarisWare/driverlib/ssi.c" \
+"C:/StellarisWare/driverlib/sysctl.c" \
+"C:/StellarisWare/driverlib/systick.c" \
+"C:/StellarisWare/driverlib/timer.c" \
+"C:/StellarisWare/driverlib/uart.c" \
+"C:/StellarisWare/driverlib/udma.c" \
+"C:/StellarisWare/driverlib/usb.c" \
+"C:/StellarisWare/driverlib/watchdog.c" 
+
+
+# Each subdirectory must supply rules for building sources it contributes
+adc.obj: C:/StellarisWare/driverlib/adc.c $(GEN_OPTS) $(GEN_SRCS)
+	@echo 'Building file: $<'
+	@echo 'Invoking: Compiler'
+	"C:/Users/Digby/Desktop/New Folder/ccsv4/tools/compiler/tms470/bin/cl470" -mv7M3 -g -O2 --gcc --define=ccs --define=PART_LM3S101 --include_path="C:/Users/Digby/Desktop/New Folder/ccsv4/tools/compiler/tms470/include" --include_path="C:/StellarisWare/driverlib/ccs/../.." --diag_warning=225 -me --gen_func_subsections --abi=eabi --code_state=16 --ual --preproc_with_compile --preproc_dependency="adc.pp" $(GEN_OPTS_QUOTED) $(subst #,$(wildcard $(subst $(SPACE),\$(SPACE),$<)),"#")
+	@echo 'Finished building: $<'
+	@echo ' '
+
+can.obj: C:/StellarisWare/driverlib/can.c $(GEN_OPTS) $(GEN_SRCS)
+	@echo 'Building file: $<'
+	@echo 'Invoking: Compiler'
+	"C:/Users/Digby/Desktop/New Folder/ccsv4/tools/compiler/tms470/bin/cl470" -mv7M3 -g -O2 --gcc --define=ccs --define=PART_LM3S101 --include_path="C:/Users/Digby/Desktop/New Folder/ccsv4/tools/compiler/tms470/include" --include_path="C:/StellarisWare/driverlib/ccs/../.." --diag_warning=225 -me --gen_func_subsections --abi=eabi --code_state=16 --ual --preproc_with_compile --preproc_dependency="can.pp" $(GEN_OPTS_QUOTED) $(subst #,$(wildcard $(subst $(SPACE),\$(SPACE),$<)),"#")
+	@echo 'Finished building: $<'
+	@echo ' '
+
+comp.obj: C:/StellarisWare/driverlib/comp.c $(GEN_OPTS) $(GEN_SRCS)
+	@echo 'Building file: $<'
+	@echo 'Invoking: Compiler'
+	"C:/Users/Digby/Desktop/New Folder/ccsv4/tools/compiler/tms470/bin/cl470" -mv7M3 -g -O2 --gcc --define=ccs --define=PART_LM3S101 --include_path="C:/Users/Digby/Desktop/New Folder/ccsv4/tools/compiler/tms470/include" --include_path="C:/StellarisWare/driverlib/ccs/../.." --diag_warning=225 -me --gen_func_subsections --abi=eabi --code_state=16 --ual --preproc_with_compile --preproc_dependency="comp.pp" $(GEN_OPTS_QUOTED) $(subst #,$(wildcard $(subst $(SPACE),\$(SPACE),$<)),"#")
+	@echo 'Finished building: $<'
+	@echo ' '
+
+cpu.obj: C:/StellarisWare/driverlib/cpu.c $(GEN_OPTS) $(GEN_SRCS)
+	@echo 'Building file: $<'
+	@echo 'Invoking: Compiler'
+	"C:/Users/Digby/Desktop/New Folder/ccsv4/tools/compiler/tms470/bin/cl470" -mv7M3 -g -O2 --gcc --define=ccs --define=PART_LM3S101 --include_path="C:/Users/Digby/Desktop/New Folder/ccsv4/tools/compiler/tms470/include" --include_path="C:/StellarisWare/driverlib/ccs/../.." --diag_warning=225 -me --gen_func_subsections --abi=eabi --code_state=16 --ual --preproc_with_compile --preproc_dependency="cpu.pp" $(GEN_OPTS_QUOTED) $(subst #,$(wildcard $(subst $(SPACE),\$(SPACE),$<)),"#")
+	@echo 'Finished building: $<'
+	@echo ' '
+
+epi.obj: C:/StellarisWare/driverlib/epi.c $(GEN_OPTS) $(GEN_SRCS)
+	@echo 'Building file: $<'
+	@echo 'Invoking: Compiler'
+	"C:/Users/Digby/Desktop/New Folder/ccsv4/tools/compiler/tms470/bin/cl470" -mv7M3 -g -O2 --gcc --define=ccs --define=PART_LM3S101 --include_path="C:/Users/Digby/Desktop/New Folder/ccsv4/tools/compiler/tms470/include" --include_path="C:/StellarisWare/driverlib/ccs/../.." --diag_warning=225 -me --gen_func_subsections --abi=eabi --code_state=16 --ual --preproc_with_compile --preproc_dependency="epi.pp" $(GEN_OPTS_QUOTED) $(subst #,$(wildcard $(subst $(SPACE),\$(SPACE),$<)),"#")
+	@echo 'Finished building: $<'
+	@echo ' '
+
+ethernet.obj: C:/StellarisWare/driverlib/ethernet.c $(GEN_OPTS) $(GEN_SRCS)
+	@echo 'Building file: $<'
+	@echo 'Invoking: Compiler'
+	"C:/Users/Digby/Desktop/New Folder/ccsv4/tools/compiler/tms470/bin/cl470" -mv7M3 -g -O2 --gcc --define=ccs --define=PART_LM3S101 --include_path="C:/Users/Digby/Desktop/New Folder/ccsv4/tools/compiler/tms470/include" --include_path="C:/StellarisWare/driverlib/ccs/../.." --diag_warning=225 -me --gen_func_subsections --abi=eabi --code_state=16 --ual --preproc_with_compile --preproc_dependency="ethernet.pp" $(GEN_OPTS_QUOTED) $(subst #,$(wildcard $(subst $(SPACE),\$(SPACE),$<)),"#")
+	@echo 'Finished building: $<'
+	@echo ' '
+
+flash.obj: C:/StellarisWare/driverlib/flash.c $(GEN_OPTS) $(GEN_SRCS)
+	@echo 'Building file: $<'
+	@echo 'Invoking: Compiler'
+	"C:/Users/Digby/Desktop/New Folder/ccsv4/tools/compiler/tms470/bin/cl470" -mv7M3 -g -O2 --gcc --define=ccs --define=PART_LM3S101 --include_path="C:/Users/Digby/Desktop/New Folder/ccsv4/tools/compiler/tms470/include" --include_path="C:/StellarisWare/driverlib/ccs/../.." --diag_warning=225 -me --gen_func_subsections --abi=eabi --code_state=16 --ual --preproc_with_compile --preproc_dependency="flash.pp" $(GEN_OPTS_QUOTED) $(subst #,$(wildcard $(subst $(SPACE),\$(SPACE),$<)),"#")
+	@echo 'Finished building: $<'
+	@echo ' '
+
+gpio.obj: C:/StellarisWare/driverlib/gpio.c $(GEN_OPTS) $(GEN_SRCS)
+	@echo 'Building file: $<'
+	@echo 'Invoking: Compiler'
+	"C:/Users/Digby/Desktop/New Folder/ccsv4/tools/compiler/tms470/bin/cl470" -mv7M3 -g -O2 --gcc --define=ccs --define=PART_LM3S101 --include_path="C:/Users/Digby/Desktop/New Folder/ccsv4/tools/compiler/tms470/include" --include_path="C:/StellarisWare/driverlib/ccs/../.." --diag_warning=225 -me --gen_func_subsections --abi=eabi --code_state=16 --ual --preproc_with_compile --preproc_dependency="gpio.pp" $(GEN_OPTS_QUOTED) $(subst #,$(wildcard $(subst $(SPACE),\$(SPACE),$<)),"#")
+	@echo 'Finished building: $<'
+	@echo ' '
+
+hibernate.obj: C:/StellarisWare/driverlib/hibernate.c $(GEN_OPTS) $(GEN_SRCS)
+	@echo 'Building file: $<'
+	@echo 'Invoking: Compiler'
+	"C:/Users/Digby/Desktop/New Folder/ccsv4/tools/compiler/tms470/bin/cl470" -mv7M3 -g -O2 --gcc --define=ccs --define=PART_LM3S101 --include_path="C:/Users/Digby/Desktop/New Folder/ccsv4/tools/compiler/tms470/include" --include_path="C:/StellarisWare/driverlib/ccs/../.." --diag_warning=225 -me --gen_func_subsections --abi=eabi --code_state=16 --ual --preproc_with_compile --preproc_dependency="hibernate.pp" $(GEN_OPTS_QUOTED) $(subst #,$(wildcard $(subst $(SPACE),\$(SPACE),$<)),"#")
+	@echo 'Finished building: $<'
+	@echo ' '
+
+i2c.obj: C:/StellarisWare/driverlib/i2c.c $(GEN_OPTS) $(GEN_SRCS)
+	@echo 'Building file: $<'
+	@echo 'Invoking: Compiler'
+	"C:/Users/Digby/Desktop/New Folder/ccsv4/tools/compiler/tms470/bin/cl470" -mv7M3 -g -O2 --gcc --define=ccs --define=PART_LM3S101 --include_path="C:/Users/Digby/Desktop/New Folder/ccsv4/tools/compiler/tms470/include" --include_path="C:/StellarisWare/driverlib/ccs/../.." --diag_warning=225 -me --gen_func_subsections --abi=eabi --code_state=16 --ual --preproc_with_compile --preproc_dependency="i2c.pp" $(GEN_OPTS_QUOTED) $(subst #,$(wildcard $(subst $(SPACE),\$(SPACE),$<)),"#")
+	@echo 'Finished building: $<'
+	@echo ' '
+
+i2s.obj: C:/StellarisWare/driverlib/i2s.c $(GEN_OPTS) $(GEN_SRCS)
+	@echo 'Building file: $<'
+	@echo 'Invoking: Compiler'
+	"C:/Users/Digby/Desktop/New Folder/ccsv4/tools/compiler/tms470/bin/cl470" -mv7M3 -g -O2 --gcc --define=ccs --define=PART_LM3S101 --include_path="C:/Users/Digby/Desktop/New Folder/ccsv4/tools/compiler/tms470/include" --include_path="C:/StellarisWare/driverlib/ccs/../.." --diag_warning=225 -me --gen_func_subsections --abi=eabi --code_state=16 --ual --preproc_with_compile --preproc_dependency="i2s.pp" $(GEN_OPTS_QUOTED) $(subst #,$(wildcard $(subst $(SPACE),\$(SPACE),$<)),"#")
+	@echo 'Finished building: $<'
+	@echo ' '
+
+interrupt.obj: C:/StellarisWare/driverlib/interrupt.c $(GEN_OPTS) $(GEN_SRCS)
+	@echo 'Building file: $<'
+	@echo 'Invoking: Compiler'
+	"C:/Users/Digby/Desktop/New Folder/ccsv4/tools/compiler/tms470/bin/cl470" -mv7M3 -g -O2 --gcc --define=ccs --define=PART_LM3S101 --include_path="C:/Users/Digby/Desktop/New Folder/ccsv4/tools/compiler/tms470/include" --include_path="C:/StellarisWare/driverlib/ccs/../.." --diag_warning=225 -me --gen_func_subsections --abi=eabi --code_state=16 --ual --preproc_with_compile --preproc_dependency="interrupt.pp" $(GEN_OPTS_QUOTED) $(subst #,$(wildcard $(subst $(SPACE),\$(SPACE),$<)),"#")
+	@echo 'Finished building: $<'
+	@echo ' '
+
+mpu.obj: C:/StellarisWare/driverlib/mpu.c $(GEN_OPTS) $(GEN_SRCS)
+	@echo 'Building file: $<'
+	@echo 'Invoking: Compiler'
+	"C:/Users/Digby/Desktop/New Folder/ccsv4/tools/compiler/tms470/bin/cl470" -mv7M3 -g -O2 --gcc --define=ccs --define=PART_LM3S101 --include_path="C:/Users/Digby/Desktop/New Folder/ccsv4/tools/compiler/tms470/include" --include_path="C:/StellarisWare/driverlib/ccs/../.." --diag_warning=225 -me --gen_func_subsections --abi=eabi --code_state=16 --ual --preproc_with_compile --preproc_dependency="mpu.pp" $(GEN_OPTS_QUOTED) $(subst #,$(wildcard $(subst $(SPACE),\$(SPACE),$<)),"#")
+	@echo 'Finished building: $<'
+	@echo ' '
+
+pwm.obj: C:/StellarisWare/driverlib/pwm.c $(GEN_OPTS) $(GEN_SRCS)
+	@echo 'Building file: $<'
+	@echo 'Invoking: Compiler'
+	"C:/Users/Digby/Desktop/New Folder/ccsv4/tools/compiler/tms470/bin/cl470" -mv7M3 -g -O2 --gcc --define=ccs --define=PART_LM3S101 --include_path="C:/Users/Digby/Desktop/New Folder/ccsv4/tools/compiler/tms470/include" --include_path="C:/StellarisWare/driverlib/ccs/../.." --diag_warning=225 -me --gen_func_subsections --abi=eabi --code_state=16 --ual --preproc_with_compile --preproc_dependency="pwm.pp" $(GEN_OPTS_QUOTED) $(subst #,$(wildcard $(subst $(SPACE),\$(SPACE),$<)),"#")
+	@echo 'Finished building: $<'
+	@echo ' '
+
+qei.obj: C:/StellarisWare/driverlib/qei.c $(GEN_OPTS) $(GEN_SRCS)
+	@echo 'Building file: $<'
+	@echo 'Invoking: Compiler'
+	"C:/Users/Digby/Desktop/New Folder/ccsv4/tools/compiler/tms470/bin/cl470" -mv7M3 -g -O2 --gcc --define=ccs --define=PART_LM3S101 --include_path="C:/Users/Digby/Desktop/New Folder/ccsv4/tools/compiler/tms470/include" --include_path="C:/StellarisWare/driverlib/ccs/../.." --diag_warning=225 -me --gen_func_subsections --abi=eabi --code_state=16 --ual --preproc_with_compile --preproc_dependency="qei.pp" $(GEN_OPTS_QUOTED) $(subst #,$(wildcard $(subst $(SPACE),\$(SPACE),$<)),"#")
+	@echo 'Finished building: $<'
+	@echo ' '
+
+ssi.obj: C:/StellarisWare/driverlib/ssi.c $(GEN_OPTS) $(GEN_SRCS)
+	@echo 'Building file: $<'
+	@echo 'Invoking: Compiler'
+	"C:/Users/Digby/Desktop/New Folder/ccsv4/tools/compiler/tms470/bin/cl470" -mv7M3 -g -O2 --gcc --define=ccs --define=PART_LM3S101 --include_path="C:/Users/Digby/Desktop/New Folder/ccsv4/tools/compiler/tms470/include" --include_path="C:/StellarisWare/driverlib/ccs/../.." --diag_warning=225 -me --gen_func_subsections --abi=eabi --code_state=16 --ual --preproc_with_compile --preproc_dependency="ssi.pp" $(GEN_OPTS_QUOTED) $(subst #,$(wildcard $(subst $(SPACE),\$(SPACE),$<)),"#")
+	@echo 'Finished building: $<'
+	@echo ' '
+
+sysctl.obj: C:/StellarisWare/driverlib/sysctl.c $(GEN_OPTS) $(GEN_SRCS)
+	@echo 'Building file: $<'
+	@echo 'Invoking: Compiler'
+	"C:/Users/Digby/Desktop/New Folder/ccsv4/tools/compiler/tms470/bin/cl470" -mv7M3 -g -O2 --gcc --define=ccs --define=PART_LM3S101 --include_path="C:/Users/Digby/Desktop/New Folder/ccsv4/tools/compiler/tms470/include" --include_path="C:/StellarisWare/driverlib/ccs/../.." --diag_warning=225 -me --gen_func_subsections --abi=eabi --code_state=16 --ual --preproc_with_compile --preproc_dependency="sysctl.pp" $(GEN_OPTS_QUOTED) $(subst #,$(wildcard $(subst $(SPACE),\$(SPACE),$<)),"#")
+	@echo 'Finished building: $<'
+	@echo ' '
+
+systick.obj: C:/StellarisWare/driverlib/systick.c $(GEN_OPTS) $(GEN_SRCS)
+	@echo 'Building file: $<'
+	@echo 'Invoking: Compiler'
+	"C:/Users/Digby/Desktop/New Folder/ccsv4/tools/compiler/tms470/bin/cl470" -mv7M3 -g -O2 --gcc --define=ccs --define=PART_LM3S101 --include_path="C:/Users/Digby/Desktop/New Folder/ccsv4/tools/compiler/tms470/include" --include_path="C:/StellarisWare/driverlib/ccs/../.." --diag_warning=225 -me --gen_func_subsections --abi=eabi --code_state=16 --ual --preproc_with_compile --preproc_dependency="systick.pp" $(GEN_OPTS_QUOTED) $(subst #,$(wildcard $(subst $(SPACE),\$(SPACE),$<)),"#")
+	@echo 'Finished building: $<'
+	@echo ' '
+
+timer.obj: C:/StellarisWare/driverlib/timer.c $(GEN_OPTS) $(GEN_SRCS)
+	@echo 'Building file: $<'
+	@echo 'Invoking: Compiler'
+	"C:/Users/Digby/Desktop/New Folder/ccsv4/tools/compiler/tms470/bin/cl470" -mv7M3 -g -O2 --gcc --define=ccs --define=PART_LM3S101 --include_path="C:/Users/Digby/Desktop/New Folder/ccsv4/tools/compiler/tms470/include" --include_path="C:/StellarisWare/driverlib/ccs/../.." --diag_warning=225 -me --gen_func_subsections --abi=eabi --code_state=16 --ual --preproc_with_compile --preproc_dependency="timer.pp" $(GEN_OPTS_QUOTED) $(subst #,$(wildcard $(subst $(SPACE),\$(SPACE),$<)),"#")
+	@echo 'Finished building: $<'
+	@echo ' '
+
+uart.obj: C:/StellarisWare/driverlib/uart.c $(GEN_OPTS) $(GEN_SRCS)
+	@echo 'Building file: $<'
+	@echo 'Invoking: Compiler'
+	"C:/Users/Digby/Desktop/New Folder/ccsv4/tools/compiler/tms470/bin/cl470" -mv7M3 -g -O2 --gcc --define=ccs --define=PART_LM3S101 --include_path="C:/Users/Digby/Desktop/New Folder/ccsv4/tools/compiler/tms470/include" --include_path="C:/StellarisWare/driverlib/ccs/../.." --diag_warning=225 -me --gen_func_subsections --abi=eabi --code_state=16 --ual --preproc_with_compile --preproc_dependency="uart.pp" $(GEN_OPTS_QUOTED) $(subst #,$(wildcard $(subst $(SPACE),\$(SPACE),$<)),"#")
+	@echo 'Finished building: $<'
+	@echo ' '
+
+udma.obj: C:/StellarisWare/driverlib/udma.c $(GEN_OPTS) $(GEN_SRCS)
+	@echo 'Building file: $<'
+	@echo 'Invoking: Compiler'
+	"C:/Users/Digby/Desktop/New Folder/ccsv4/tools/compiler/tms470/bin/cl470" -mv7M3 -g -O2 --gcc --define=ccs --define=PART_LM3S101 --include_path="C:/Users/Digby/Desktop/New Folder/ccsv4/tools/compiler/tms470/include" --include_path="C:/StellarisWare/driverlib/ccs/../.." --diag_warning=225 -me --gen_func_subsections --abi=eabi --code_state=16 --ual --preproc_with_compile --preproc_dependency="udma.pp" $(GEN_OPTS_QUOTED) $(subst #,$(wildcard $(subst $(SPACE),\$(SPACE),$<)),"#")
+	@echo 'Finished building: $<'
+	@echo ' '
+
+usb.obj: C:/StellarisWare/driverlib/usb.c $(GEN_OPTS) $(GEN_SRCS)
+	@echo 'Building file: $<'
+	@echo 'Invoking: Compiler'
+	"C:/Users/Digby/Desktop/New Folder/ccsv4/tools/compiler/tms470/bin/cl470" -mv7M3 -g -O2 --gcc --define=ccs --define=PART_LM3S101 --include_path="C:/Users/Digby/Desktop/New Folder/ccsv4/tools/compiler/tms470/include" --include_path="C:/StellarisWare/driverlib/ccs/../.." --diag_warning=225 -me --gen_func_subsections --abi=eabi --code_state=16 --ual --preproc_with_compile --preproc_dependency="usb.pp" $(GEN_OPTS_QUOTED) $(subst #,$(wildcard $(subst $(SPACE),\$(SPACE),$<)),"#")
+	@echo 'Finished building: $<'
+	@echo ' '
+
+watchdog.obj: C:/StellarisWare/driverlib/watchdog.c $(GEN_OPTS) $(GEN_SRCS)
+	@echo 'Building file: $<'
+	@echo 'Invoking: Compiler'
+	"C:/Users/Digby/Desktop/New Folder/ccsv4/tools/compiler/tms470/bin/cl470" -mv7M3 -g -O2 --gcc --define=ccs --define=PART_LM3S101 --include_path="C:/Users/Digby/Desktop/New Folder/ccsv4/tools/compiler/tms470/include" --include_path="C:/StellarisWare/driverlib/ccs/../.." --diag_warning=225 -me --gen_func_subsections --abi=eabi --code_state=16 --ual --preproc_with_compile --preproc_dependency="watchdog.pp" $(GEN_OPTS_QUOTED) $(subst #,$(wildcard $(subst $(SPACE),\$(SPACE),$<)),"#")
+	@echo 'Finished building: $<'
+	@echo ' '
+
+
