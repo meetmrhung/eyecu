@@ -32,26 +32,14 @@ i/* Stellaris Peripheral Driver Library User's Guide
  * Acknowledge
  * Stop
  */
-#include "inc/hw_memmap.h"
-#include "inc/hw_types.h"
-#include "inc/hw_i2c.h"
-#include "driverlib/i2c.h"
-#include "driverlib/sysctl.h"
-#include "driverlib/gpio.h"
-#include "utils/uartstdio.h"
+ 
+/**********************************************************************************/
+/* 									Includes                                      */
+/**********************************************************************************/
+ 
+#include "cameraI2C.h"
 
-// Set the address for slave module. This is a 7-bit address sent in the
-// following format:
-//                      [A6:A5:A4:A3:A2:A1:A0:RS]
-//
-// A zero in the "RS" position of the first byte means that the master
-// transmits (sends) data to the selected slave, and a one in this position
-// means that the master receives data from the slave.
- #define	I2C0_SLAVE_BASE		0x78		//Camera
- #define	I2C0_MASTER_BASE	0x0000.0020	//Stellaris
- //Stellaris Slave Address: 0x0000.0000
- #define	SYSCTL_PERIPH_GPIOB				//%%%%%%%%%%%///
- #define	SYSCTL_PERIPH_I2C0				//%%%%%%%%%%%///
+
  ///////////////////////////////////////NOTES/////////////
  // SLAVE BASE ADDRESS 0x78 	//This is for write 
  								//read is 0x79
@@ -59,13 +47,14 @@ i/* Stellaris Peripheral Driver Library User's Guide
   // Suggested camera command initialization order (by hex register address): 02,1e,03
  // RapidFire order - 02,03,04,1E,03
  
- // DONT FORGET PULLUP RESISTORS
+ // #######################DONT FORGET PULLUP RESISTORS
  ////////////////////////////////////////////////////////
  
  /*	Frame rate, frequency, DCLK polarity */
- //Address 02h	11XX XX00 - 0x30
+ //Address 02h	1100 0000 - 0xC0
  // Frame Rate			(0 = 30fps, 	1 = 15fps) 			B7
  // AC Freq	(flckr)		(0 = 50Hz,		1 = 60Hz)			B6
+ // RESERVED												B5-2
  // Polarity of DCLK	(0 = norm,  	1 = inverted)		B1
  // Auto flckr det		(0 = on,		1 = off)			B0
  
@@ -104,8 +93,14 @@ i/* Stellaris Peripheral Driver Library User's Guide
  //						1 = ramp wave after gamma
  //						2 = ramp wave before gamma
  //						3 = normal picture
- 
- void I2CInit()
+
+//Name: I2CMCUInit()
+//Precondition: No other function has been called
+//Postcondition: Clock speed is set directly from crystal. GPIOs have been enabled
+//	for I2C communication. Master/Slave have been enabled and the I2C SCL speed 
+//	is set
+//Description: Stellaris board I2C initialization
+ void I2CMCUInit()
  {
  	//Set clock to run directly from crystal
 	SysCtlClockSet(SYSCTL_SYSDIV_1 | SYSCTL_USE_OSC | SYSCTL_OSC_MAIN | SYSCTL_XTAL_8MHZ);
@@ -124,12 +119,61 @@ i/* Stellaris Peripheral Driver Library User's Guide
 
 }
 
-void I2CWrite()
+//Name: I2CInitCamera()
+//Precondition: I2CMCUInit() has been called
+//Postcondition: I2CMasterWrite has been called
+//Description: Camera has been initialized and configured for operation.
+//	Frame rate, Image output format, synchronizations, and output mode 
+void I2CInitCamera()
 {
+	/*	Frame rate, frequency, DCLK polarity */
+	I2CMasterWrite(0x02,0xC0);
+	/*	Testing for Color bar, Enable Synchronizations*/
+	I2CMasterWrite(0x1E,0x6C);	
+	/* Enable data outputs, set camera resolution to SUBQCIF full for testing, data output to format YUV422, and image color */
+	I2CMasterWrite(0x03,0x20);			
+}
+
+//Name: I2CMasterWrite()
+//Precondition: I2CMCUInit() has been called
+//Postcondition: Byte of data has been written to camera
+//Description: Preforms necessary protocol to write a byte of data to camera
+void I2CMasterWrite(unsigned char reg_address, unsigned char data)
+{
+	//###Don't forget to disable interrupts
+	
 	//Set slave and define whether transfer is a send (write from master to slave), or receive.
 	//		true  = I2C Master initiating READ from the Slave
 	//		false = I2C Master initiating a WRITE to the Slave		
-	I2CMasterSlaveAddrSet(I2C0_MASTER_BASE, I2C0_SLAVE_BASE, true);
+	I2CMasterSlaveAddrSet(I2C0_MASTER_BASE, CAMERA_BASE, false);		//POSSIBLE SOURCE FOR ERROR, THIS FUNCTION SHIFTS SLAVE BY 1
+	//Load SLAVE ADDRESS 	
+	I2CMasterDataPut(I2C0_MASTER_BASE, CAMERA_BASE);
+	//Send SLAVE ADDRESS with START condition
+	I2CMasterControl(I2C0_MASTER_BASE, I2C_MASTER_CMD_BURST_SEND_START);
+	while(I2CMasterBusy(I2C0_MASTER_BASE)){}
+
+	//Wait for ACK ###################
+	//###ERROR CHECKING - unsigned long I2CMasterErr(unsigned long ulBase)
 	
-			
+	//Load SLAVE REGISTER ADDRESS 	
+	I2CMasterDataPut(I2C0_MASTER_BASE, reg_address);	
+	//Send SLAVE REGISTER ADDRESS 
+	I2CMasterControl(I2C0_MASTER_BASE, I2C_MASTER_CMD_BURST_SEND_CONT);
+	//Wait until Master is idle 
+	while(I2CMasterBusy(I2C0_MASTER_BASE)){}
+
+	//Wait for ACK on the read after the write ##########
+	//###ERROR CHECKING - unsigned long I2CMasterErr(unsigned long ulBase)	
+	
+	//Load DATA 
+	I2CMasterDataPut(I2C0_MASTER_BASE, data);	
+	//Send DATA with STOP CONDITION
+	I2CMasterControl(I2C0_MASTER_BASE, I2C_MASTER_CMD_BURST_SEND_FINISH);		//###WHAT ABOUT GETTING ACK FROM SLAVE BEFORE SEND STOP?????
+	//Wait until Master is idle 
+	while(I2CMasterBusy(I2C0_MASTER_BASE)){}
+	
+	//###ERROR CHECKING - unsigned long I2CMasterErr(unsigned long ulBase)	
+	
+	
+	//###Don't forget to enable interrupts
 }
