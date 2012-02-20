@@ -71,6 +71,51 @@ ClassGenCCAutoRoomEnabled=1
 ClassGenNCAutoScope=None
 DItemRevisionGUID=
 
+[Document4]
+DocumentPath=CameraInterface.SchDoc
+AnnotationEnabled=1
+AnnotateStartValue=1
+AnnotationIndexControlEnabled=0
+AnnotateSuffix=
+AnnotateScope=All
+AnnotateOrder=-1
+DoLibraryUpdate=1
+DoDatabaseUpdate=1
+ClassGenCCAutoEnabled=1
+ClassGenCCAutoRoomEnabled=1
+ClassGenNCAutoScope=None
+DItemRevisionGUID=
+
+[Document5]
+DocumentPath=misc.PcbLib
+AnnotationEnabled=1
+AnnotateStartValue=1
+AnnotationIndexControlEnabled=0
+AnnotateSuffix=
+AnnotateScope=All
+AnnotateOrder=-1
+DoLibraryUpdate=1
+DoDatabaseUpdate=1
+ClassGenCCAutoEnabled=1
+ClassGenCCAutoRoomEnabled=1
+ClassGenNCAutoScope=None
+DItemRevisionGUID=
+
+[Document6]
+DocumentPath=usb_ethernet.SchDoc
+AnnotationEnabled=1
+AnnotateStartValue=1
+AnnotationIndexControlEnabled=0
+AnnotateSuffix=
+AnnotateScope=All
+AnnotateOrder=-1
+DoLibraryUpdate=1
+DoDatabaseUpdate=1
+ClassGenCCAutoEnabled=1
+ClassGenCCAutoRoomEnabled=1
+ClassGenNCAutoScope=None
+DItemRevisionGUID=
+
 [OutputGroup1]
 Name=Netlist Outputs
 Description=
@@ -831,6 +876,48 @@ NetClassManualEnabled=1
 [LibraryUpdateOptions]
 SelectedOnly=0
 PartTypes=0
+ComponentLibIdentifierKind0=Library Name And Type
+ComponentLibraryIdentifier0=daughterboard.SchLib
+ComponentDesignItemID0=IDT72V241L10PF
+ComponentSymbolReference0=IDT72V241L10PF
+ComponentUpdate0=0
+ComponentIsDeviceSheet0=0
+ComponentLibIdentifierKind1=Library Name And Type
+ComponentLibraryIdentifier1=daughterboard.SchLib
+ComponentDesignItemID1=SN74LVC1404
+ComponentSymbolReference1=SN74LVC1404
+ComponentUpdate1=1
+ComponentIsDeviceSheet1=0
+ComponentLibIdentifierKind2=Library Name And Type
+ComponentLibraryIdentifier2=daughterboard.SchLib
+ComponentDesignItemID2=SN74LVCH16T245
+ComponentSymbolReference2=SN74LVCH16T245
+ComponentUpdate2=0
+ComponentIsDeviceSheet2=0
+ComponentLibIdentifierKind3=Library Name And Type
+ComponentLibraryIdentifier3=daughterboard.SchLib
+ComponentDesignItemID3=TCM8230MD_1
+ComponentSymbolReference3=TCM8230MD_1
+ComponentUpdate3=0
+ComponentIsDeviceSheet3=0
+ComponentLibIdentifierKind4=Library Name And Type
+ComponentLibraryIdentifier4=Miscellaneous Devices.IntLib
+ComponentDesignItemID4=MOSFET-N
+ComponentSymbolReference4=MOSFET-N
+ComponentUpdate4=0
+ComponentIsDeviceSheet4=0
+ComponentLibIdentifierKind5=Library Name And Type
+ComponentLibraryIdentifier5=Miscellaneous Devices.IntLib
+ComponentDesignItemID5=Res3
+ComponentSymbolReference5=Res3
+ComponentUpdate5=0
+ComponentIsDeviceSheet5=0
+ComponentLibIdentifierKind6=Library Name And Type
+ComponentLibraryIdentifier6=Miscellaneous Devices.IntLib
+ComponentDesignItemID6=XTAL
+ComponentSymbolReference6=XTAL
+ComponentUpdate6=0
+ComponentIsDeviceSheet6=0
 FullReplace=1
 UpdateDesignatorLock=1
 UpdatePartIDLock=1
@@ -842,6 +929,69 @@ RemoveParameters=0
 AddModels=1
 RemoveModels=1
 UpdateCurrentModels=1
+ParameterName0=Comment
+ParameterUpdate0=1
+ParameterName1=Component Kind
+ParameterUpdate1=1
+ParameterName2=Description
+ParameterUpdate2=1
+ParameterName3=LatestRevisionDate
+ParameterUpdate3=1
+ParameterName4=LatestRevisionNote
+ParameterUpdate4=1
+ParameterName5=Library Reference
+ParameterUpdate5=1
+ParameterName6=PackageDescription
+ParameterUpdate6=1
+ParameterName7=PackageReference
+ParameterUpdate7=1
+ParameterName8=PackageVersion
+ParameterUpdate8=1
+ParameterName9=Published
+ParameterUpdate9=1
+ParameterName10=Publisher
+ParameterUpdate10=1
+ParameterName11=Value
+ParameterUpdate11=1
+ModelTypeGroup0=PCBLIB
+ModelTypeUpdate0=1
+ModelType0=PCBLIB
+ModelName0=BCY-W2/D3.1
+ModelUpdate0=1
+ModelType1=PCBLIB
+ModelName1=BCY-W3/B.8
+ModelUpdate1=1
+ModelType2=PCBLIB
+ModelName2=RESC1608L
+ModelUpdate2=1
+ModelType3=PCBLIB
+ModelName3=RESC3225L
+ModelUpdate3=1
+ModelType4=PCBLIB
+ModelName4=RESC5025L
+ModelUpdate4=1
+ModelType5=PCBLIB
+ModelName5=RESC6332L
+ModelUpdate5=1
+ModelType6=PCBLIB
+ModelName6=TCM8230MD
+ModelUpdate6=1
+ModelTypeGroup1=SI
+ModelTypeUpdate1=1
+ModelType7=SI
+ModelName7=Res
+ModelUpdate7=1
+ModelTypeGroup2=SIM
+ModelTypeUpdate2=1
+ModelType8=SIM
+ModelName8=NMOS
+ModelUpdate8=1
+ModelType9=SIM
+ModelName9=RESISTOR
+ModelUpdate9=1
+ModelType10=SIM
+ModelName10=XTAL
+ModelUpdate10=1
 
 [DatabaseUpdateOptions]
 SelectedOnly=0
@@ -853,4 +1003,7 @@ ComparisonOptions1=Kind=Net Class|MinPercent=75|MinMatch=3|ShowMatch=-1|Confirm=
 ComparisonOptions2=Kind=Component Class|MinPercent=75|MinMatch=3|ShowMatch=-1|Confirm=-1|UseName=-1|InclAllRules=0
 ComparisonOptions3=Kind=Rule|MinPercent=75|MinMatch=3|ShowMatch=-1|Confirm=-1|UseName=-1|InclAllRules=0
 ComparisonOptions4=Kind=Differential Pair|MinPercent=50|MinMatch=1|ShowMatch=0|Confirm=0|UseName=0|InclAllRules=0
+
+[SmartPDF]
+PageOptions=Record=PageOptions|CenterHorizontal=True|CenterVertical=True|PrintScale=1.00|XCorrection=1.00|YCorrection=1.00|PrintKind=1|BorderSize=5000000|LeftOffset=0|BottomOffset=0|Orientation=2|PaperLength=1000|PaperWidth=1000|Scale=100|PaperSource=7|PrintQuality=-4|MediaType=1|DitherType=10|PaperKind=Letter|PrintScaleMode=1
 
