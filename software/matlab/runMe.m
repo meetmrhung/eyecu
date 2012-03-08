@@ -1,19 +1,19 @@
 %  Demonstration of thresholding and connected region finding
 
-clc; close all; clear all;
+clc; clear all;close all
 
 if(exist('mov') == 0)
     fprintf('Reading video...');
-    vid = VideoReader('Armeen_Far.avi');
+    %vid = VideoReader('vlc-record-2012-02-26-11h29m12s-dshow___-.avi');
+    vid = VideoReader('Nick_Far.avi');
     nFrames = vid.NumberOfFrames;
     vidHeight = vid.Height;
     vidWidth = vid.Width;
-    nFrames = 10;
-
+    nFrames = 100;
 
     mov(1:nFrames) = struct('cdata', zeros(vidHeight, vidWidth, 3, 'uint8'), 'colormap', []);
     for k = 1 : nFrames
-        mov(k).cdata = read(vid, 2+k);
+        mov(k).cdata = read(vid, 0+k);
     end
     
     fprintf('Done\n');
@@ -28,40 +28,34 @@ yfinish = 400;
 adapt = [5 3 2];
 
 fprintf('Creating video...');
-myObj = VideoWriter('Armeen_Far_Proc.avi');
+myObj = VideoWriter('Nick_Far_Proc.avi');
 myObj.FrameRate = 30;
 open(myObj);
 %h = waitbar(0, 'Creating Video');
-
-threshold = 31;
 tic
+refArea = 260;   %% For Nick_Far dataset
+%refArea  = 800;  
+RefCentroid = [268.6042 222.0208];
+global DirOutputVec ;
+DirOutputVec= [];          % Direction Output Vector
+
 for m = 1:nFrames
-    
+    Dir1 = 0;
+    threshold = 51;
     cAdaptations = 1;
-    while(true)
+    IsBlink = 0;
+    NextFrame = 1;
+    while(NextFrame)
         %waitbar(m/nFrames, h, sprintf('Creating Video: %d%%', int16(100*m/nFrames)));
         A = mov(1,m).cdata;
-        %B = rgb2gray(A);
         I = A;
         B = A(:,:,1);
         B_G = A(:,:,2);
-        % 
-         %figure
-         %imshow(mov(1,m).cdata(:,:,1));
-    %     figure
-    %     imshow(mov(1,m).cdata(:,:,2));
-    %     figure
-    %     imshow(mov(1,m).cdata(:,:,3));
-        %figure; imshow(B);
-        %  Indicate processing region
-        %A(ystart, :, 1) = 0; A(ystart, :, 2) = 0; A(ystart, :, 3) = 255;    
-        %A(:, xstart, 1) = 0; A(:, xstart, 2) = 255; A(:, xstart, 3) = 0;
-
-        %  Set pixels under threshold to red
+       
         darkPixels = [];
         for i = ystart:yfinish
             for j = xstart:xfinish
-                if(B(i,j) < threshold &&  B_G(i,j) <  threshold)
+                if(B(i,j) < threshold)
                     A(i,j,1) = 255;
                     A(i,j,2) = 0;
                     A(i,j,3) = 0;
@@ -71,42 +65,64 @@ for m = 1:nFrames
         end
 
 
-        [A maxVal pixelCount sortIndex D] = connectionMatrix(A,darkPixels);
-        [A IsBLink] = Check_Aspect_Ratio(D,sortIndex, 4, A);
-        imshow(A);
-        [A indx indy] = RemovTail(A,B);
-   
-        if( m == 1)
-            refArea = pixelCount;
-            break;
-        end
-        if( pixelCount < 0.85*refArea )
-            threshold = threshold + 2;
-        elseif( pixelCount > 1.15*refArea )
-            threshold = threshold - 2;
+        [A PixelCount sortIndex darkPixels D] = connectionMatrix(A,darkPixels,I);
+        [A darkPixels D] = Complete_PUPIL(60, darkPixels, D, A, I, sortIndex);      % This is the part of the algorithm that tries to take care of specular reflection
+        if (length(PixelCount ~= 0))   %% Check to see if any region with the threshold value is found.
+            [PupilConnected Direction] = CompareRefArea(refArea,PixelCount);
+              
+            if (Direction == 0) % if there was a region that met the area requirement.
+                [A IsPUPIL PUPIL_TO_BE_COLORED Direction] = Check_Aspect_Ratio(darkPixels, A, D, sortIndex,PupilConnected, Direction); 
+                if (IsPUPIL == 1) 
+                   NextFrame = 0; 
+                end
+            end
+            
+            % This part deals with the possibility of being in an infinite
+            % loop (i.e alternating between Direction = 2 and Direction =
+            % -2
+            if (Dir1 == -Direction )
+                Direction = Direction/2;
+            end
+            if (abs(Dir1)<1 && Dir1 ~= 0)          
+                Direction = abs(Dir1)*Direction/2;
+            end
+            Dir1 = Direction;
+        
+            threshold = threshold - 2*Direction;
+            cAdaptations = cAdaptations + 1;
+        
+            if(cAdaptations > 10)
+                IsBlink = 1;    % User has blinked
+                NextFrame = 0;
+            end
         else
-            break;
-        end
-        cAdaptations = cAdaptations + 1;
-        if(cAdaptations > 10)
-            break;
+                IsBlink = 1; 
+                NextFrame = 0;
         end
     end
-   [centroid A] = Centroid_Finding(A);
-   if m == 1
-       RefCentorid = centroid;
+    
+    
+   if (IsBlink == 0)
+        [A] = RemovTail2(A,I,D,darkPixels,PUPIL_TO_BE_COLORED);
+        [centroid A totalmass] = Centroid_Finding(A,D,darkPixels,PUPIL_TO_BE_COLORED);
    else
-       GiveDirection(A,RefCentorid, centroid);
+        A = I;  
    end
-       
-       
-   figure; imshow(A);
-   writeVideo(myObj,A);
+   
+   
+
+    if (IsBlink)
+        Output  = -3;
+    else
+        [A Output] = GiveDirection(A,RefCentroid,centroid);  
+    end
+    DirOutputVec = CountConsecFrames(DirOutputVec, Output);
+ 
+    writeVideo(myObj,A);
     %print(gcf, '-djpeg', ['./' sprintf('%d',m) '.jpg']);
     fprintf('Finished Processing %d image \n',m);
     
 end
 close(myObj);
 fprintf('Done.\n');
-close(h);
 toc
