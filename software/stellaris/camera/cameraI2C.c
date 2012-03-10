@@ -1,55 +1,46 @@
-i/* Stellaris Peripheral Driver Library User's Guide
- * http://www.ti.com/lit/ug/spmu019m/spmu019m.pdf
- * Stellaris LM3S6965 Microcontroller Datasheet 
-*/
-/*
- ********* WRITE MODE ********
- * Start
- * Slave Address (MSB 7bit)	
- * 0
- * <Acknowledge>
- * Sub Address (8 bit)
- * <Acknowledge>
- * Data 1 (8 bit)
- * <Acknowledge>
- * Data n (8 bit)
- * <Acknowledge>
- * Stop
- * 
- ******** READ MODE ********
- * Start
- * Slave Address (MSB 7 bit)
- * 0
- * <Acknowledge>
- * Sub Address (8 bit)
- * <Acknowledge>
- * Start
- * Slave Address (MSB 7 bit)
- * 1
- * <Data 1 (8 bit)>
- * Acknowledge
- * <Data n (8 bit)>
- * Acknowledge
- * Stop
- */
- 
 /**********************************************************************************/
-/* 									Includes                                      */
+/* Title			cameraI2C.c			                                          */
+/* Programmer		Arielle Blum                                             	  */
+/* Date				3-9-12		                                                  */
+/* Description		I2C driver for Stellaris LM3S6965. Sets up basic I2C protocol */
+/* 					for camera, including camera initialization over I2C.		  */					  
 /**********************************************************************************/
- 
-#include "cameraI2C.h"
 
+//* Stellaris Peripheral Driver Library User's Guide
+// * http://www.ti.com/lit/ug/spmu019m/spmu019m.pdf
+// * Stellaris LM3S6965 Microcontroller Datasheet 
+//*/
+///*
+// ********* WRITE MODE ********
+// * Start
+// * Slave Address (MSB 7bit)	
+// * 0
+// * <Acknowledge>
+// * Sub Address (8 bit)
+// * <Acknowledge>
+// * Data 1 (8 bit)
+// * <Acknowledge>
+// * Data n (8 bit)
+// * <Acknowledge>
+// * Stop
+// * 
+// ******** READ MODE ********
+// * Start
+// * Slave Address (MSB 7 bit)
+// * 0
+// * <Acknowledge>
+// * Sub Address (8 bit)
+// * <Acknowledge>
+// * Start
+// * Slave Address (MSB 7 bit)
+// * 1
+// * <Data 1 (8 bit)>
+// * Acknowledge
+// * <Data n (8 bit)>
+// * Acknowledge
+// * Stop
+// */
 
- ///////////////////////////////////////NOTES/////////////
- // SLAVE BASE ADDRESS 0x78 	//This is for write 
- 								//read is 0x79
- // Camera Address 0x3c
-  // Suggested camera command initialization order (by hex register address): 02,1e,03
- // RapidFire order - 02,03,04,1E,03
- 
- // #######################DONT FORGET PULLUP RESISTORS
- ////////////////////////////////////////////////////////
- 
  /*	Frame rate, frequency, DCLK polarity */
  //Address 02h	1100 0000 - 0xC0
  // Frame Rate			(0 = 30fps, 	1 = 15fps) 			B7
@@ -93,6 +84,29 @@ i/* Stellaris Peripheral Driver Library User's Guide
  //						1 = ramp wave after gamma
  //						2 = ramp wave before gamma
  //						3 = normal picture
+ 
+/**********************************************************************************/
+/* 									Includes                                      */
+/**********************************************************************************/
+ 
+
+#include "inc/hw_i2c.h"
+#include "inc/hw_memmap.h"
+#include "inc/hw_sysctl.h"
+#include "inc/hw_types.h"
+#include "driverlib/debug.h"
+#include "driverlib/gpio.h"
+#include "driverlib/i2c.h"
+#include "driverlib/sysctl.h"
+
+
+/**********************************************************************************/
+/* 									Defines                                       */
+/**********************************************************************************/
+#define	CAMERA_BASE			0x78		//Camera Base Address WRITE
+ 										//read is 0x79 
+ 
+
 
 //Name: I2CMCUInit()
 //Precondition: No other function has been called
@@ -100,38 +114,28 @@ i/* Stellaris Peripheral Driver Library User's Guide
 //	for I2C communication. Master/Slave have been enabled and the I2C SCL speed 
 //	is set
 //Description: Stellaris board I2C initialization
- void I2CMCUInit()
+static void I2CMCUInit(void)
  {
+ 	volatile unsigned long ulLoop;
  	//Set clock to run directly from crystal
+
 	SysCtlClockSet(SYSCTL_SYSDIV_1 | SYSCTL_USE_OSC | SYSCTL_OSC_MAIN | SYSCTL_XTAL_8MHZ);
-	//Enable GPIOs for I2C
-	SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOB);
-	//Enable specific I2C0 pins
+
+	//Enable GPIOs for B and I2C0 Module
 	SysCtlPeripheralEnable(SYSCTL_PERIPH_I2C0);
- 	//Enable Master and Slave, set SCL speed
+	SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOB);
+
+	//Configure GPIOs as SDA and SCL
+	GPIOPinConfigure(GPIO_PB2_I2C0SCL);
+	GPIOPinConfigure(GPIO_PB3_I2C0SDA);
+
+	//Define SCL and SDA as I2C GPIOs
+	GPIOPinTypeI2C(GPIO_PORTB_BASE, GPIO_PIN_2 | GPIO_PIN_3);
+	
+	//Enable Master and Slave, set SCL speed
  	//		true  = 400kbps data transfer
  	//		false = 100kbps data transfer
-	I2CMasterInitExpClk(I2C0_MASTER_BASE, SysCtlClockGet(), false);	 //Master addr, clk, scl
-
-//		#Useless after I2CMasterInitExpClk()
-//	 //Enable and Initialize Master/Slave
-//	 I2CMasterEnable(MASTER_BASE);
-
-}
-
-//Name: I2CInitCamera()
-//Precondition: I2CMCUInit() has been called
-//Postcondition: I2CMasterWrite has been called
-//Description: Camera has been initialized and configured for operation.
-//	Frame rate, Image output format, synchronizations, and output mode 
-void I2CInitCamera()
-{
-	/*	Frame rate, frequency, DCLK polarity */
-	I2CMasterWrite(0x02,0xC0);
-	/*	Testing for Color bar, Enable Synchronizations*/
-	I2CMasterWrite(0x1E,0x6C);	
-	/* Enable data outputs, set camera resolution to SUBQCIF full for testing, data output to format YUV422, and image color */
-	I2CMasterWrite(0x03,0x20);			
+	I2CMasterInitExpClk(I2C0_MASTER_BASE, SysCtlClockGet(), false);
 }
 
 //Name: I2CMasterWrite()
@@ -145,14 +149,16 @@ void I2CMasterWrite(unsigned char reg_address, unsigned char data)
 	//Set slave and define whether transfer is a send (write from master to slave), or receive.
 	//		true  = I2C Master initiating READ from the Slave
 	//		false = I2C Master initiating a WRITE to the Slave		
-	I2CMasterSlaveAddrSet(I2C0_MASTER_BASE, CAMERA_BASE, false);		//POSSIBLE SOURCE FOR ERROR, THIS FUNCTION SHIFTS SLAVE BY 1
+	I2CMasterSlaveAddrSet(I2C0_MASTER_BASE, CAMERA_BASE, false);				//POSSIBLE SOURCE FOR ERROR, THIS FUNCTION SHIFTS SLAVE BY 1
+
 	//Load SLAVE ADDRESS 	
 	I2CMasterDataPut(I2C0_MASTER_BASE, CAMERA_BASE);
 	//Send SLAVE ADDRESS with START condition
 	I2CMasterControl(I2C0_MASTER_BASE, I2C_MASTER_CMD_BURST_SEND_START);
+	//Wait until Master is finished sending 
 	while(I2CMasterBusy(I2C0_MASTER_BASE)){}
 
-	//Wait for ACK ###################
+	//Wait for ACK 
 	//###ERROR CHECKING - unsigned long I2CMasterErr(unsigned long ulBase)
 	
 	//Load SLAVE REGISTER ADDRESS 	
@@ -161,7 +167,7 @@ void I2CMasterWrite(unsigned char reg_address, unsigned char data)
 	I2CMasterControl(I2C0_MASTER_BASE, I2C_MASTER_CMD_BURST_SEND_CONT);
 	//Wait until Master is idle 
 	while(I2CMasterBusy(I2C0_MASTER_BASE)){}
-
+	
 	//Wait for ACK on the read after the write ##########
 	//###ERROR CHECKING - unsigned long I2CMasterErr(unsigned long ulBase)	
 	
@@ -171,9 +177,33 @@ void I2CMasterWrite(unsigned char reg_address, unsigned char data)
 	I2CMasterControl(I2C0_MASTER_BASE, I2C_MASTER_CMD_BURST_SEND_FINISH);		//###WHAT ABOUT GETTING ACK FROM SLAVE BEFORE SEND STOP?????
 	//Wait until Master is idle 
 	while(I2CMasterBusy(I2C0_MASTER_BASE)){}
-	
 	//###ERROR CHECKING - unsigned long I2CMasterErr(unsigned long ulBase)	
-	
-	
 	//###Don't forget to enable interrupts
 }
+
+
+//Name: I2CInitCamera()
+//Precondition: I2CMCUInit() has been called
+//Postcondition: I2CMasterWrite has been called
+//Description: Camera has been initialized and configured for operation.
+//	Frame rate, Image output format, synchronizations, and output mode 
+void I2CInitCamera()
+{
+	/*	Frame rate, frequency, DCLK polarity */
+	I2CMasterWrite(0x02,0xC0);
+	/*	Testing for Color bar, Enable Synchronizations*/
+	I2CMasterWrite(0x1E,0x6C);	
+	/* Enable data outputs, set camera resolution to SUBQCIF full for testing, 
+	 * data output to format YUV422, and image color */
+	I2CMasterWrite(0x03,0x20);			
+}
+
+
+void main(void)
+{
+	I2CMCUInit();
+
+	I2CInitCamera();
+
+}
+
