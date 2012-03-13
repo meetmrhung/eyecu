@@ -1,8 +1,11 @@
 //#define DEBUG								//  Exits directly after compile
+//#define VIDEO_STEP_THROUGH					//  Requires a key press to advance to next frame in video
+//#define DISPLAY_OUTPUT						//  Shows video output in a window
+#define RECORD_OUTPUT						//  Records output to p.outFile
+//#define CAPTURE_CAMERA						//  Capture from camera if defined, else from video file
 
-#define CAPTURE_CAMERA						//  Capture from camera if defined, else from video file
 
-#define SHOW_PROCESSING_REGION				//  Draw processing region
+//#define SHOW_PROCESSING_REGION				//  Draw processing region
 #define SHOW_THRESHOLD_PIXELS				//  Color thresholded pixels
 #define SHOW_CONNECTED_REGIONS				//  Color connected regions
 #define SHOW_FINAL_REGION					//  Color final pupil region
