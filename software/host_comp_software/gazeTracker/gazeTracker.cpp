@@ -10,6 +10,8 @@
 #include "eFEParam.h"
 
 //  Initialize program parameters
+//  * Indicates value is set based on other parameters
+//    (computation done in storageInit()
 param p = {
 	"Nick_Far.avi",		//  inFile
 	"out.avi",			//  outFile
@@ -25,8 +27,12 @@ param p = {
 	300,				//  refSize
 	0.7,				//  refSizeMinRatio
 	1.3,				//  refSizeMaxRatio
-	210,				//  refSizeMin
-	390,				//  refSizeMax
+	0,					//  refSizeMin*
+	0,					//  refSizeMax*
+
+	10,					//  maxTotalRegions
+	0,					//  procRegioniSize*
+	0,					//  procRegionjSize*
 	
 	{0,0},				//  refCentroid
 	50,					//  initThreshold
@@ -35,11 +41,79 @@ param p = {
 	0					//  startFrame
 };
 
+point* cRPointList;
+char* cRBinary;
+int* cRMap;
+int* cRSizes0;
+int* cRSizes1;
+int cRCount;
 
+void storageInit()
+{
+	int i,k;
+
+	p.refSizeMin = p.refSize * p.refSizeMinRatio;
+	p.refSizeMax = p.refSize * p.refSizeMaxRatio;
+	p.procRegioniSize = p.iFinish - p.iStart + 1;
+	p.procRegionjSize = p.jFinish - p.jStart + 1;
+
+	cRPointList = (point*)malloc(p.procRegioniSize * p.procRegionjSize * sizeof(point));
+	cRBinary = (char*)malloc(p.maxTotalRegions * p.procRegioniSize * p.procRegionjSize * sizeof(char));
+	cRMap = (int*)malloc(p.maxTotalRegions * p.procRegioniSize * p.procRegionjSize * sizeof(int));
+	cRSizes0 = (int*)malloc(p.maxTotalRegions * sizeof(int));
+	cRSizes1 = (int*)malloc(p.maxTotalRegions * sizeof(int));
+	return;
+
+}
+
+void storageDestroy()
+{
+	free(cRPointList);
+	free(cRBinary);
+	free(cRMap);
+	free(cRSizes0);
+	free(cRSizes1);
+
+	return;
+}
 
 #ifdef DEBUG
 int _tmain(int argc, _TCHAR* argv[])
 {
+	int i;
+	point pt = {1,2};
+	pointStackElement* stackHead = (pointStackElement*)malloc(sizeof(pointStackElement));
+	stackHead->nextElement = 0;
+	stackHead->elementData = pt;
+
+	for(i = 0; i < 5; i++)
+	{
+		++(pt.x); ++(pt.y);
+		pointStackPush(&stackHead, pt);
+	}
+
+	pointStackPrint(stackHead);
+
+	printf("Pop top two\n");
+	pointStackPop(&stackHead);pointStackPop(&stackHead);
+	pointStackPrint(stackHead);
+
+	printf("Pop remaining\n");
+	while(stackHead != 0)
+		pointStackPop(&stackHead);
+	pointStackPrint(stackHead);
+
+	printf("Allocating storage\n");
+	getch();
+	storageInit();
+	int loc = I3D( (p.maxTotalRegions-1), (p.iFinish-p.iStart), (p.jFinish-p.jStart) );
+	cRBinary[loc] = 25;
+	cRMap[loc] = 25;
+	printf("Deallocating storage\n");
+	getch();
+	storageDestroy();
+
+	getch();
 	return(1);
 }
 #endif
@@ -62,6 +136,8 @@ int _tmain(int argc, _TCHAR* argv[])
 	uchar* data;			//  Type cast for image data
 	int threshold = 75;
 	
+	storageInit();
+
 	//  Capture from video device #1
 	CvCapture* capture = cvCaptureFromCAM(1);
 
@@ -141,14 +217,15 @@ int _tmain(int argc, _TCHAR* argv[])
 	//  Release capture 
 	cvReleaseCapture(&capture);
 
+	storageDestroy();
 	return 0;
 }
 
 
 
-#else
+#endif
 
-
+#ifdef CAPTURE_VIDEO
 
 int _tmain(int argc, _TCHAR* argv[])
 {
@@ -169,6 +246,8 @@ int _tmain(int argc, _TCHAR* argv[])
 	uchar* data;			//  Type cast for image data
 	int threshold = 75;
 	
+	storageInit();
+
 	//  Capture video from file
 	CvCapture* capture = cvCaptureFromAVI("Nick_Far.avi");
 	int numFrames = (int) cvGetCaptureProperty(capture,  CV_CAP_PROP_FRAME_COUNT);	
@@ -241,6 +320,8 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	//  Release capture 
 	cvReleaseCapture(&capture);
+
+	storageDestroy();
 
 	return 0;
 }
