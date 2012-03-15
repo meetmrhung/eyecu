@@ -1,0 +1,8 @@
+AM335x Starterware
+http://processors.wiki.ti.com/index.php/StarterWare
+
+FTDI drivers
+http://www.ftdichip.com/Drivers/VCP.htm
+
+Beagle Bone USB drivers
+http://beagleboard.org/static/beaglebone/a3/README.htm#drivers
