@@ -1,0 +1,7 @@
++ change offsheet connectors to netlists
++ lower curent through amber LEDs
++ look for a better way to route camera
++ modify cam rst?
++ label all pins for connector to beagle
++ add 0 ohm Rs to power lines
++ move line regs to camera board?
