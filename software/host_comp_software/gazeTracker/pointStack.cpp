@@ -14,15 +14,17 @@ point pointStackPop(pointStackElement** head)
 		return(tempData);
 	}
 }
-void pointStackPush(pointStackElement** head, point pt)
+void pointStackPush(pointStackElement** head, int x, int y)
 {
-	if(*head != 0)
-	{
-		pointStackElement * ele = (pointStackElement *) malloc(sizeof(pointStackElement));		//  Create new head
-		ele->elementData = pt;
-		ele->nextElement = *head;
-		*head = ele;																			//  Update head
-	}
+
+	pointStackElement * ele = (pointStackElement *) malloc(sizeof(pointStackElement));		//  Create new head
+	if(ele == 0)
+		printf("Error allocating memory\n");
+	ele->elementData.x = x;
+	ele->elementData.y = y;
+	ele->nextElement = *head;
+	*head = ele;																			//  Update head
+
 	return;
 }
 

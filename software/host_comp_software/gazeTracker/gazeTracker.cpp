@@ -13,55 +13,86 @@
 //  * Indicates value is set based on other parameters
 //    (computation done in storageInit()
 param p = {
-	"Nick_Far.avi",		//  inFile
-	"out.avi",			//  outFile
+	"Nick_Capstone.avi",//  inFile Nick
+	//"Nick_Far.avi",	//  inFile Armeen
+	"out.avi",	//  outFile
 
-	100,				//  iStart
-	300,				//  iFinish
-	150,				//  jStart
-	350,				//  jFinish
+	0,					//  imgWidth
+	0,					//  imgHeight
 
-	0.5,				//  aspectMin
+	170,				//  iStart
+	270,				//  iFinish
+	270,				//  jStart
+	420,				//  jFinish
+
+	0.6,				//  aspectMin
 	2.0,				//  aspectMax
 
-	300,				//  refSize
-	0.7,				//  refSizeMinRatio
-	1.3,				//  refSizeMaxRatio
+	516,				//  refSize
+	0.6,				//  refSizeMinRatio
+	1.8,				//  refSizeMaxRatio
 	0,					//  refSizeMin*
 	0,					//  refSizeMax*
 
-	10,					//  maxTotalRegions
 	0,					//  procRegioniSize*
 	0,					//  procRegionjSize*
-	
+	0,					//  totalPixels (procRegioniSize * procRegionjSize * MAX_TOTAL_REGIONS)
+
 	{0,0},				//  refCentroid
-	50,					//  initThreshold
+	45,					//  initThreshold
+
+	0,					//  minxChangeL
+	0,					//  minxChangeR
+	0,					//  minyChangeU
+	0,					//  minyChangeD
+
+	4,					//  maxAdaptations
+	{8,4,2,1},			//  magThreshChange
 
 	0,					//  nFrames
 	0					//  startFrame
 };
 
-point* cRPointList;
-char* cRBinary;
-int* cRMap;
-int* cRSizes0;
-int* cRSizes1;
-int cRCount;
+point* cRPointList;					//  cRPointList[I2D(k,i)] = ith point of region k
+unsigned char* cRBinary;			//  cRBinary[I3D(k,x,y)] = 1 if (x,y) is in region k
+int* cRMap;							//  cRMap[I3D(k,x,y)] = index of point (x,y) in region k in crPointList
+int* cRSizes0;						//  Region sizes before clean up
+int* cRSizes1;						//  Region sizes after clean up
+unsigned char* processedPixels;		//  Used in flood fill algorithm to keep track of already filled pixels
+unsigned char* gSImg;				//  Greyscale version of entire image gSImg[2DFULL(x,y)]
+int* candidateRegionIndices;		//  Stores index of regions that meet aspect ratio test
+int candidateRegionCount;			//  Number of regions that meet aspect ratio test
+double* cRAspectRatio;				//  Array storing aspect ratios
+int cRCount;						//  Total number of connected regions meeting size requirement
+int maxRegionSize = 0;				//	Max region size found in getConnectedRegions
+int doCalibration = 0;				//  Stores pupil size and centroid as reference if set to 1
 
-void storageInit()
+enum resultType procResult;			//  Stores processing result (see definition)
+
+void computeParameters(int width, int height)
 {
-	int i,k;
-
+	p.imgWidth = width;
+	p.imgHeight = height;
 	p.refSizeMin = p.refSize * p.refSizeMinRatio;
 	p.refSizeMax = p.refSize * p.refSizeMaxRatio;
 	p.procRegioniSize = p.iFinish - p.iStart + 1;
 	p.procRegionjSize = p.jFinish - p.jStart + 1;
 
-	cRPointList = (point*)malloc(p.procRegioniSize * p.procRegionjSize * sizeof(point));
-	cRBinary = (char*)malloc(p.maxTotalRegions * p.procRegioniSize * p.procRegionjSize * sizeof(char));
-	cRMap = (int*)malloc(p.maxTotalRegions * p.procRegioniSize * p.procRegionjSize * sizeof(int));
-	cRSizes0 = (int*)malloc(p.maxTotalRegions * sizeof(int));
-	cRSizes1 = (int*)malloc(p.maxTotalRegions * sizeof(int));
+	p.totalPixels = MAX_TOTAL_REGIONS * p.procRegioniSize * p.procRegionjSize;
+}
+void storageInit()
+{
+	cRPointList = (point*)malloc(p.totalPixels * sizeof(point));
+	cRBinary = (unsigned char*)malloc(p.totalPixels * sizeof(unsigned char));
+	cRMap = (int*)malloc(p.totalPixels * sizeof(int));
+	cRSizes0 = (int*)malloc(MAX_TOTAL_REGIONS * sizeof(int));
+	cRSizes1 = (int*)malloc(MAX_TOTAL_REGIONS * sizeof(int));
+	cRAspectRatio = (double*)malloc(MAX_TOTAL_REGIONS * sizeof(double));
+	candidateRegionIndices = (int*)malloc(MAX_TOTAL_REGIONS * sizeof(int));
+	processedPixels = (unsigned char*) malloc( (p.imgWidth ) * (p.imgHeight) * sizeof(unsigned char) );
+	gSImg = (unsigned char*) malloc( (p.imgWidth) * (p.imgHeight) * sizeof(unsigned char) );
+	if(  cRPointList == 0 || cRBinary == 0 || cRMap == 0 || cRSizes0 == 0 || cRSizes1 == 0 || processedPixels == 0 || gSImg == 0)
+		printf("Error allocating memory\n");
 	return;
 
 }
@@ -73,11 +104,14 @@ void storageDestroy()
 	free(cRMap);
 	free(cRSizes0);
 	free(cRSizes1);
-
+	free(cRAspectRatio);
+	free(candidateRegionIndices);
+	free(processedPixels);
+	free(gSImg);
 	return;
 }
 
-#ifdef DEBUG
+#ifdef DEBUG_MAIN
 int _tmain(int argc, _TCHAR* argv[])
 {
 	int i;
@@ -126,6 +160,7 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	int c;
 	int i;
+	int counter;
 
 	int step = 1920;		//  Number of bytes in a row of image data
 	int channels = 3;		//  RGB
@@ -134,9 +169,9 @@ int _tmain(int argc, _TCHAR* argv[])
 	int depth = 8;			//  8 bits per channel per pixel
 
 	uchar* data;			//  Type cast for image data
-	int threshold = 75;
-	
-	storageInit();
+
+	time_t t_start,t_end;
+	double sec, fps_measure;
 
 	//  Capture from video device #1
 	CvCapture* capture = cvCaptureFromCAM(1);
@@ -154,7 +189,7 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	#ifdef RECORD_OUTPUT
 		//  Setup output
-		CvVideoWriter *writer = cvCreateVideoWriter("out.avi", CV_FOURCC('P','I','M','1'), fps, cvSize(640,480),isColor);
+		CvVideoWriter *writer = cvCreateVideoWriter(p.outFile, CV_FOURCC('P','I','M','1'), fps, cvSize(640,480),isColor);
 	#endif
 
 	int frameW = cvGetCaptureProperty(capture, CV_CAP_PROP_FRAME_WIDTH);
@@ -166,11 +201,33 @@ int _tmain(int argc, _TCHAR* argv[])
 	//  OpenCV reference says we shouldn't modify the output of cvQueryFrame
 	//    so this is used to store a copy.
 	IplImage *dst  = cvCreateImage(cvSize(frameW, frameH), depth, channels);
+	
 
 	//  Record FPS in camerea mode
-	time_t t_start,t_end;
 	time(&t_start);
-	int counter = 0;
+	counter = 0;
+	computeParameters(frameW, frameH);
+	storageInit();
+	while(1)
+	{
+		img = cvQueryFrame(capture);
+		#ifdef DISPLAY_OUTPUT
+			cvShowImage("mainWin", img);
+		#endif
+
+		//  Calculate FPS and output
+		time(&t_end);
+		++counter;
+		double sec = difftime(t_end, t_start);
+		fps_measure = counter/sec;
+		printf("FPS: %lf\n",fps_measure);
+		c = cvWaitKey(30);
+		if(c == 'g')
+			break;
+	}
+
+	time(&t_start);
+	counter = 0;
 	while(1)
 	{
 		//  Retrieve the captured frame
@@ -178,8 +235,8 @@ int _tmain(int argc, _TCHAR* argv[])
 		cvCopy( img, dst, NULL);
 		
 		//  In this version, getConnectedRegions thresholds and modifies dst
-		getConnectedRegions(dst, threshold);
-		
+		processFrame(dst);
+
 		#ifdef DISPLAY_OUTPUT
 			//  Show the image in the window
 			cvShowImage("mainWin", dst );
@@ -188,9 +245,9 @@ int _tmain(int argc, _TCHAR* argv[])
 		//  Calculate FPS and output
 		time(&t_end);
 		++counter;
-		double sec = difftime(t_end, t_start);
-		double fps = counter/sec;
-		printf("FPS: %lf, Threshold: %u\n",fps,threshold);
+		sec = difftime(t_end, t_start);
+		fps_measure = counter/sec;
+		printf("FPS: %.2lf, T: %u, S: %.2lf, C: (%u,%u)\n",fps_measure,p.initThreshold, p.refSize, p.refCentroid.x, p.refCentroid.y);
 
 		//  Wait 10 ms for a key to be pressed
 		c = cvWaitKey(10);
@@ -198,10 +255,56 @@ int _tmain(int argc, _TCHAR* argv[])
 		// escape key terminates program
 		if(c == 27)
 			break;
-		if(c == 'a')
-			threshold++;
-		if(c == 's')
-			threshold--;
+		switch(c)
+		{
+		case 'r':
+			p.initThreshold++;
+			break;
+		case 'f':
+			p.initThreshold--;
+			break;
+		case 't':
+			p.refSize += 20;
+			break;
+		case 'g':
+			p.refSize -= 20;
+			break;
+		case 'c':
+			doCalibration = 1;
+			break;
+		case 'a':
+			p.jStart -= 20;
+			break;
+		case 'A':
+			p.jStart += 20;
+			break;
+		case 's':
+			p.iFinish += 20;
+			break;
+		case 'S':
+			p.iFinish -= 20;
+			break;
+		case 'd':
+			p.jFinish += 20;
+			break;
+		case 'D':
+			p.jFinish -= 20;
+			break;
+		case 'w':
+			p.iStart -= 20;
+			break;
+		case 'W':
+			p.iStart += 20;
+			break;
+		}
+		if(c != -1)
+		{
+			storageDestroy();
+			computeParameters(p.imgWidth, p.imgHeight);
+			storageInit();
+		}
+
+	
 
 		#ifdef RECORD_OUTPUT
 			//  Output to video file
@@ -244,12 +347,13 @@ int _tmain(int argc, _TCHAR* argv[])
 	int stepVideoCount = 0;
 
 	uchar* data;			//  Type cast for image data
-	int threshold = 75;
+	int threshold = p.initThreshold;
 	
-	storageInit();
+	time_t t_start,t_end;
+	double sec;
 
 	//  Capture video from file
-	CvCapture* capture = cvCaptureFromAVI("Nick_Far.avi");
+	CvCapture* capture = cvCaptureFromAVI(p.inFile);
 	int numFrames = (int) cvGetCaptureProperty(capture,  CV_CAP_PROP_FRAME_COUNT);	
 	
 	#ifdef DISPLAY_OUTPUT
@@ -261,27 +365,52 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	#ifdef RECORD_OUTPUT
 		//  Setup output
-		CvVideoWriter *writer = cvCreateVideoWriter("out.avi", CV_FOURCC('P','I','M','1'), fps, cvSize(640,480),isColor);
+		CvVideoWriter *writer = cvCreateVideoWriter(p.outFile, CV_FOURCC('P','I','M','1'), fps, cvSize(640,480),isColor);
 	#endif
 
-	int frameW = cvGetCaptureProperty(capture, CV_CAP_PROP_FRAME_WIDTH);
-	int frameH = cvGetCaptureProperty(capture, CV_CAP_PROP_FRAME_HEIGHT);
+	int frameW = (int)cvGetCaptureProperty(capture, CV_CAP_PROP_FRAME_WIDTH);
+	int frameH = (int)cvGetCaptureProperty(capture, CV_CAP_PROP_FRAME_HEIGHT);
 	//  Allocate memory for an image
 	IplImage *img;
 	//  OpenCV reference says we shouldn't modify the output of cvQueryFrame
 	//    so this is used to store a copy.
 	IplImage *dst  = cvCreateImage(cvSize(frameW, frameH), depth, channels);
 
-	//  Record FPS in camerea mode
+	computeParameters(frameW, frameH);
+	storageInit();
+	time(&t_start);
+
+#ifdef CALIBRATION_ACTIVE
+	img = cvQueryFrame(capture);
+	while(1)
+	{
+		cvCopy( img, dst, NULL);
+		
+		processFrame(dst);
+
+		#ifdef DISPLAY_OUTPUT
+			//  Show the image in the window
+			cvShowImage("mainWin", dst );
+			cvWaitKey(10);
+		#endif
+
+		c = getch();
+		if(c == 'g')
+			break;
+		
+		//  add calibration code here
+	}
+	for(i = 1; i < numFrames; ++i)
+#else
 	for(i = 0; i < numFrames; ++i)
+#endif
 	{
 		//  Retrieve the captured frame
 		img = cvQueryFrame(capture);
 		cvCopy( img, dst, NULL);
 		
-		//  In this version, getConnectedRegions thresholds and modifies dst
-		getConnectedRegions(dst, threshold);
-		
+		processFrame(dst);
+
 		#ifdef DISPLAY_OUTPUT
 			//  Show the image in the window
 			cvShowImage("mainWin", dst );
@@ -312,7 +441,9 @@ int _tmain(int argc, _TCHAR* argv[])
 			cvWriteFrame(writer,dst);
 		#endif
 	}
-
+	time(&t_end);
+	sec  = difftime(t_end,t_start);
+	
 	#ifdef RECORD_OUTPUT
 		//  Release video writer
 		cvReleaseVideoWriter(&writer);
@@ -323,6 +454,8 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	storageDestroy();
 
+	printf("Compute Time: %lf\n", sec);
+	getch();
 	return 0;
 }
 #endif

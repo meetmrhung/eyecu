@@ -16,6 +16,6 @@ struct pointStackElement
 
 //  Pop/Push. Head set to zero if empty.
 point pointStackPop(pointStackElement** head);
-void pointStackPush(pointStackElement** head, point pt);
+void pointStackPush(pointStackElement** head, int x, int y);
 void pointStackPrint(pointStackElement* head);
 #endif
