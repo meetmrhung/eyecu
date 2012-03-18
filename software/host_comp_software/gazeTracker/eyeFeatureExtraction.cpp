@@ -21,6 +21,8 @@ extern int* candidateRegionIndices;
 extern int candidateRegionCount;
 extern double* cRAspectRatio;
 extern int doCalibration;
+extern point* removedPoints;
+extern int removedPointCount;
 
 #define RGB2GS(X,Y) 0.1140*data[(X)*step+(Y)*channels+0]+0.5870*data[(X)*step+(Y)*channels+1]+0.2989*data[(X)*step+(Y)*channels+2]
 
@@ -120,7 +122,8 @@ void getConnectedRegions(int threshold)
 	int jStart = p.jStart;
 	int jFinish = p.jFinish;
 	int totalPixels = p.totalPixels;
-
+	int procRegionArea = p.procRegioniSize * p.procRegionjSize;
+	
 	double refSizeMin = p.refSizeMin;
 	double refSizeMax = p.refSizeMax;
 
@@ -193,6 +196,11 @@ void getConnectedRegions(int threshold)
 						cRSizes0[currentRegion++] = currentPixel;
 						if( currentPixel > maxSizeProper) 
 							maxSizeProper = currentPixel;
+					}
+					else
+					{
+						memset(cRBinary + currentRegion*procRegionArea, 0, sizeof(unsigned char)*procRegionArea);
+						memset(cRMap + currentRegion*procRegionArea, 0, sizeof(int)*procRegionArea);
 					}
 					if( currentPixel > maxSizeOverall)
 						maxSizeOverall = currentPixel;

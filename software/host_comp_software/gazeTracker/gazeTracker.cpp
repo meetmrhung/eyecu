@@ -54,6 +54,8 @@ param p = {
 };
 
 point* cRPointList;					//  cRPointList[I2D(k,i)] = ith point of region k
+point* removedPoints;				//  Keeps track of points removed in removeAberrations
+int removedPointCount;				//  Keeps track of number of points removed in removeAberrations
 unsigned char* cRBinary;			//  cRBinary[I3D(k,x,y)] = 1 if (x,y) is in region k
 int* cRMap;							//  cRMap[I3D(k,x,y)] = index of point (x,y) in region k in crPointList
 int* cRSizes0;						//  Region sizes before clean up
@@ -83,6 +85,7 @@ void computeParameters(int width, int height)
 void storageInit()
 {
 	cRPointList = (point*)malloc(p.totalPixels * sizeof(point));
+	removedPoints = (point*)malloc(p.totalPixels * sizeof(point));
 	cRBinary = (unsigned char*)malloc(p.totalPixels * sizeof(unsigned char));
 	cRMap = (int*)malloc(p.totalPixels * sizeof(int));
 	cRSizes0 = (int*)malloc(MAX_TOTAL_REGIONS * sizeof(int));
@@ -91,7 +94,7 @@ void storageInit()
 	candidateRegionIndices = (int*)malloc(MAX_TOTAL_REGIONS * sizeof(int));
 	processedPixels = (unsigned char*) malloc( (p.imgWidth ) * (p.imgHeight) * sizeof(unsigned char) );
 	gSImg = (unsigned char*) malloc( (p.imgWidth) * (p.imgHeight) * sizeof(unsigned char) );
-	if(  cRPointList == 0 || cRBinary == 0 || cRMap == 0 || cRSizes0 == 0 || cRSizes1 == 0 || processedPixels == 0 || gSImg == 0)
+	if(  cRPointList == 0 || cRBinary == 0 || cRMap == 0 || cRSizes0 == 0 || cRSizes1 == 0 || processedPixels == 0 || gSImg == 0 || removedPoints == 0 || cRAspectRatio == 0 || candidateRegionIndices == 0)
 		printf("Error allocating memory\n");
 	return;
 
@@ -100,6 +103,7 @@ void storageInit()
 void storageDestroy()
 {
 	free(cRPointList);
+	free(removedPoints);
 	free(cRBinary);
 	free(cRMap);
 	free(cRSizes0);
