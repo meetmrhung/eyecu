@@ -24,6 +24,6 @@ void addProcessingOverlay(IplImage *img, int unityIndex, point centroid);
 point computeCentroid(int unityIndex);
 
 // Compares the reference centroid and the computed centroid to determine direction
-void compareCentroids(point centroid);
+void generateCursorCommand(point centroid);
 
 #endif

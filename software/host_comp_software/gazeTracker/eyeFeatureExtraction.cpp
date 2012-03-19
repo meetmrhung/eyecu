@@ -105,7 +105,7 @@ void processFrame(IplImage *img)
 	#endif
 	if (procResult == isPupil)
 	{
-		compareCentroids(centroid);
+		generateCursorCommand(centroid);
 	}
 	addProcessingOverlay(img, unityIndex, centroid);
 }
@@ -338,12 +338,11 @@ point computeCentroid(int unityIndex)
 }
 
 // Compares finds reference centroid with the current pupil centroid to determine a direction. Also checks to see how many consecutive frames a particular direction is outputed. 
-void compareCentroids(point centroid)
+void generateCursorCommand(point centroid)
 {
 	int xdist = centroid.x - p.refCentroid.x;
 	int ydist = centroid.y - p.refCentroid.y;
 	
-	//printf("prevResultType %d\n", consecDirFrame);
 	
 	if (abs(xdist) > abs(ydist))
 	{
@@ -394,6 +393,7 @@ void compareCentroids(point centroid)
 	prevResultType = procResult;
 }
 
+// Goal: remove aberrations of the region that was found to be the pupil
 void removeAberrations(int unityIndex)
 {
 	int i,j;
