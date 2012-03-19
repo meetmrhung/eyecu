@@ -1,19 +1,20 @@
 //#define DEBUG_MAIN									//  Exits directly after compile
-//#define DEBUG_OUTPUT
+#define DEBUG_OUTPUT
 
-//#define CALIBRATION_ACTIVE					//  Allow calibration
+#define CALIBRATION_ACTIVE					//  Allow calibration
 //#define CAPTURE_CAMERA						//  Capture from camera if defined, else from video file
-//#define DISPLAY_OUTPUT						//  Shows video output in a window
+#define DISPLAY_OUTPUT						//  Shows video output in a window
 
 #define CAPTURE_VIDEO
 #define RECORD_OUTPUT							//  Records output to p.outFile
-//#define VIDEO_STEP_THROUGH					//  Requires a key press to advance to next frame in video
+#define VIDEO_STEP_THROUGH					//  Requires a key press to advance to next frame in video
 
 #define SHOW_PROCESSING_REGION					//  Draw processing region
-//#define SHOW_THRESHOLD_PIXELS					//  Color thresholded pixels
-//#define SHOW_CONNECTED_REGIONS					//  Color connected regions
-//#define SHOW_CANDIDATE_REGIONS					//  Color regions that meet size and aspect ratio requirements
+#define SHOW_THRESHOLD_PIXELS					//  Color thresholded pixels
+#define SHOW_CONNECTED_REGIONS					//  Color connected regions
+#define SHOW_CANDIDATE_REGIONS					//  Color regions that meet size and aspect ratio requirements
 #define SHOW_FINAL_REGION						//  Color final pupil region
+#define SHOW_PIXELS_REMOVED						//  Color the the part of the final region that was removed in removeAberration
 #define SHOW_CENTROID_LOCATION					//  Draw cross over pupil centroid
 
 #define MAX_TOTAL_REGIONS 10					//  Total number of connected regions to store
@@ -42,6 +43,11 @@ struct param
 	//  Acceptable aspect ratio
 	float		aspectMin;
 	float		aspectMax;
+	
+	// Acceptable length of the connected region (Note we assume the same constraints for x and y direction).
+	double		lengthRegion;
+	double		lengthMaxRatio;
+	double		lengthMinRatio;
 
 	//  Acceptable pupil dimensions
 	double		refSize;
@@ -56,13 +62,16 @@ struct param
 
 	//  Reference centroid and initial threshold
 	point		refCentroid;
-	int		initThreshold;
+	int			initThreshold;
 	
 	//	How much the eye moves before moving the cursor
 	int			minxChangeL;
 	int			minxChangeR;
 	int			minyChangeU;
 	int			minyChangeD;
+
+	// Number of frames with a particular direction before moving the cursor in that direction
+	int			maxNumFrames;	
 
 	// Maximum number of threshold adaptations and the change in magnitude of threshold:
 	int			maxAdaptations;

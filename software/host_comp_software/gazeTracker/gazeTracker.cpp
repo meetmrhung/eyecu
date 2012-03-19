@@ -28,9 +28,13 @@ param p = {
 	0.6,				//  aspectMin
 	2.0,				//  aspectMax
 
+	0,					// lengthRegion
+	1.4,				// legthMaxRatio
+	0.6,				// lengthMinRatio
+
 	516,				//  refSize
 	0.6,				//  refSizeMinRatio
-	1.8,				//  refSizeMaxRatio
+	1.4,				//  refSizeMaxRatio
 	0,					//  refSizeMin*
 	0,					//  refSizeMax*
 
@@ -41,10 +45,12 @@ param p = {
 	{0,0},				//  refCentroid
 	45,					//  initThreshold
 
-	0,					//  minxChangeL
-	0,					//  minxChangeR
-	0,					//  minyChangeU
-	0,					//  minyChangeD
+	15,					//  minxChangeL
+	15,					//  minxChangeR
+	18,					//  minyChangeU
+	5,					//  minyChangeD
+
+	10,					//	maxNumFrames
 
 	4,					//  maxAdaptations
 	{8,4,2,1},			//  magThreshChange
@@ -68,8 +74,12 @@ double* cRAspectRatio;				//  Array storing aspect ratios
 int cRCount;						//  Total number of connected regions meeting size requirement
 int maxRegionSize = 0;				//	Max region size found in getConnectedRegions
 int doCalibration = 0;				//  Stores pupil size and centroid as reference if set to 1
-
+point centroid;
+int consecDirFrame;					//  Counts number of consecutive frames user is looking in particular direction
 enum resultType procResult;			//  Stores processing result (see definition)
+int prevResultType = 0;				//  stores the processing result of the previous frame. Used to assure consecutive number of frames in particular direction. 
+double maxLengthConnected;			//  Maximum length of the connected region allowed to pass as the pupil
+double minLengthConnected;			//  Minimum length of the connected region allowed to pass as the pupil
 
 void computeParameters(int width, int height)
 {
@@ -386,12 +396,12 @@ int _tmain(int argc, _TCHAR* argv[])
 
 #ifdef CALIBRATION_ACTIVE
 	img = cvQueryFrame(capture);
+	doCalibration = 1;
 	while(1)
 	{
 		cvCopy( img, dst, NULL);
-		
+			
 		processFrame(dst);
-
 		#ifdef DISPLAY_OUTPUT
 			//  Show the image in the window
 			cvShowImage("mainWin", dst );
@@ -401,8 +411,41 @@ int _tmain(int argc, _TCHAR* argv[])
 		c = getch();
 		if(c == 'g')
 			break;
-		
-		//  add calibration code here
+	
+		// escape key terminates program
+		switch(c)
+		{
+		case 'r':
+			p.initThreshold++;
+			break;
+		case 'f':
+			p.initThreshold--;
+			break;
+		case 'a':
+			p.jStart -= 20;
+			break;
+		case 'A':
+			p.jStart += 20;
+			break;
+		case 's':
+			p.iFinish += 20;
+			break;
+		case 'S':
+			p.iFinish -= 20;
+			break;
+		case 'd':
+			p.jFinish += 20;
+			break;
+		case 'D':
+			p.jFinish -= 20;
+			break;
+		case 'w':
+			p.iStart -= 20;
+			break;
+		case 'W':
+			p.iStart += 20;
+			break;
+		}
 	}
 	for(i = 1; i < numFrames; ++i)
 #else

@@ -23,6 +23,12 @@ extern double* cRAspectRatio;
 extern int doCalibration;
 extern point* removedPoints;
 extern int removedPointCount;
+extern point centroid;
+extern int consecDirFrame;
+extern int prevResultType;
+extern double maxLengthConnected;
+extern double minLengthConnected;
+
 
 #define RGB2GS(X,Y) 0.1140*data[(X)*step+(Y)*channels+0]+0.5870*data[(X)*step+(Y)*channels+1]+0.2989*data[(X)*step+(Y)*channels+2]
 
@@ -67,6 +73,8 @@ void processFrame(IplImage *img)
 				else
 				{
 					procResult = isPupil;
+					removedPointCount = 0;
+					removeAberrations(unityIndex);
 				}
 			}
 			++numAdapt;
@@ -85,6 +93,9 @@ void processFrame(IplImage *img)
 		{
 			p.refCentroid = centroid;
 			p.refSize = cRSizes0[unityIndex];
+			p.lengthRegion = 2*sqrt((p.refSize)/(3.1415));
+			maxLengthConnected = p.lengthRegion*p.lengthMaxRatio;
+			minLengthConnected = p.lengthRegion*p.lengthMinRatio; 
 			doCalibration = 0;
 		}
 	#endif
@@ -92,6 +103,10 @@ void processFrame(IplImage *img)
 	#ifdef DEBUG_OUTPUT
 		printf("Centroid: (%u, %u)\n\n", centroid.x, centroid.y);
 	#endif
+	if (procResult == isPupil)
+	{
+		compareCentroids(centroid);
+	}
 	addProcessingOverlay(img, unityIndex, centroid);
 }
 
@@ -273,14 +288,32 @@ int findUnityRatio()
 		#endif
 		if (cRAspectRatio[k] < p.aspectMax && cRAspectRatio[k] > p.aspectMin)
 		{
-			candidateRegionIndices[candidateRegionCount++] = k;
-			if (abs(dummyratio-1) > abs(cRAspectRatio[k]-1))
+			if(doCalibration == 1)
 			{
-				dummyratio = cRAspectRatio[k];
-				unityIndex = k;
+				candidateRegionIndices[candidateRegionCount++] = k;
+				if (abs(dummyratio-1) > abs(cRAspectRatio[k]-1))
+				{
+					dummyratio = cRAspectRatio[k];
+					unityIndex = k;
+				}
+				procResult = isPupil;
 			}
-			procResult = isPupil;
+			else
+			{
+				// Additional check to make sure that the x length and y length of the candidate region is acceptable
+				if (ycount < maxLengthConnected && ycount > minLengthConnected && xcount < maxLengthConnected && xcount > minLengthConnected)
+				{
+					candidateRegionIndices[candidateRegionCount++] = k;
+					if (abs(dummyratio-1) > abs(cRAspectRatio[k]-1))
+					{
+						dummyratio = cRAspectRatio[k];
+						unityIndex = k;
+					}
+					procResult = isPupil;
+				}
+			}
 		}
+
 	}
 	
 	return unityIndex;
@@ -290,8 +323,7 @@ int findUnityRatio()
 point computeCentroid(int unityIndex)
 {
 	int i;
-	int sumx = 0;
-	int sumy = 0;
+	int sumx = 0, sumy = 0;
 	point centroid;
 
 	for (i = 0; i < cRSizes0[unityIndex]; ++i)
@@ -299,16 +331,20 @@ point computeCentroid(int unityIndex)
 		sumx += cRPointList[I2D(unityIndex,i)].x;
 		sumy += cRPointList[I2D(unityIndex,i)].y;
 	}
-	centroid.x = (int) sumx/cRSizes0[unityIndex];
-	centroid.y = (int) sumy/cRSizes0[unityIndex];
+
+	centroid.y = (int) sumx/(cRSizes0[unityIndex]-removedPointCount);
+	centroid.x = (int) sumy/(cRSizes0[unityIndex]-removedPointCount);
 	return centroid;
 }
 
-// Compares finds reference centroid with the current pupil centroid to determine a direction. 
+// Compares finds reference centroid with the current pupil centroid to determine a direction. Also checks to see how many consecutive frames a particular direction is outputed. 
 void compareCentroids(point centroid)
 {
 	int xdist = centroid.x - p.refCentroid.x;
 	int ydist = centroid.y - p.refCentroid.y;
+	
+	//printf("prevResultType %d\n", consecDirFrame);
+	
 	if (abs(xdist) > abs(ydist))
 	{
 		if (xdist > 0 && xdist > p.minxChangeL)
@@ -339,7 +375,23 @@ void compareCentroids(point centroid)
 			procResult = isMiddle;
 		}
 	}
-		
+	if (prevResultType == procResult)
+	{
+		consecDirFrame++;
+	}
+	else
+	{
+		consecDirFrame = 0;
+	}
+	if (consecDirFrame == p.maxNumFrames)
+	{
+		consecDirFrame = 0;
+		#ifdef DEBUG_OUTPUT
+			printf("The direction of the gaze is: %d\n", procResult);
+			printf("\n");
+		#endif	
+	}
+	prevResultType = procResult;
 }
 
 void removeAberrations(int unityIndex)
@@ -347,49 +399,77 @@ void removeAberrations(int unityIndex)
 	int i,j;
 	double* rowCount = (double*)malloc(p.procRegioniSize * sizeof(double));
 	double* colCount = (double*)malloc(p.procRegionjSize * sizeof(double));;
+	int* rowValue = (int*)malloc(p.procRegioniSize * sizeof(int));
+	int  rcIndex [300][30];
+	int  crIndex [300][30];
+	int* colIndex = (int*)malloc(p.procRegionjSize * sizeof(int));
+
+
 	double sumTotal = 0;
-	int sum = 0;
+	int sum = 0;		
+	
+	int z = 0;
 	int index;
+	int numCol = 0;
+	int numRow = 0;
+	int rowIndex = 0 ;
 	double avgRowCount;
 	double stdRowCount;
 	double avgColCount;
 	double stdColCount;
+	removedPointCount = 0;
+
 
 
 	// Horizontal Scan
-
+	
 	// Compute the average pixel count in a horizontal scan
-	for (i = p.iStart; i <= p.iFinish; ++i)
+	for (i = 0; i < p.procRegioniSize; ++i)
 	{
 		sum = 0;
-		for (j = p.jStart; j <= p.jFinish; ++j)
-		{
-			sum += cRBinary[I3D(unityIndex,j,i)];
+		numCol = 0;
+		for (j = 0; j < p.procRegionjSize; ++j)
+		{	
+			if (cRBinary[I3D(unityIndex,i,j)] != 0)
+			{
+				sum += cRBinary[I3D(unityIndex,i,j)];
+				rcIndex[rowIndex][numCol] = j;
+				++numCol;
+			}
 		}
-		rowCount[i-p.iStart] = sum;
-		sumTotal += sum;
+		
+		if (sum != 0)
+		{
+			rowCount[rowIndex] = sum;
+			rowValue[rowIndex] =  i;
+			sumTotal += sum;
+			rowIndex++;
+		}	
 	}
-	avgRowCount = sumTotal/(p.iFinish-p.iStart+1);
+	avgRowCount = sumTotal/(rowIndex);
 		
 	
 	// Compute the standard deviation of pixel count in horizontal scan
 	sumTotal = 0;
-	for (i = 0; i<= p.iFinish-p.iStart; ++i)
+	for (i = 0; i < rowIndex; ++i)
 	{
 		sumTotal += (rowCount[i]-avgRowCount)*(rowCount[i]-avgRowCount);
 	}
-	stdRowCount = sumTotal/(p.iFinish-p.iStart+1);
-	
-	for (i = 0; i<= p.iFinish-p.iStart; ++i)
+	stdRowCount = sqrt(sumTotal/(rowIndex));
+	for (i = 0; i < rowIndex ;++i)
 	{
-		if (rowCount[i] < avgRowCount - 2*stdRowCount)
+		if (rowCount[i] < avgRowCount - 1.5*stdRowCount)
 		{
-			for (j = p.jStart; j <= p.jFinish; ++j)
+			for (j = 0; j < rowCount[i]; ++j)
 			{
-				index = cRMap[I3D(unityIndex,j,i+p.iStart)];
+			
+				index = cRMap[I3D(unityIndex,rowValue[i],rcIndex[i][j])];
+       			removedPoints[z].x = cRPointList[I2D(unityIndex,index)].x;	
+				removedPoints[z].y = cRPointList[I2D(unityIndex,index)].y;
 				cRPointList[I2D(unityIndex,index)].x = 0;	
 				cRPointList[I2D(unityIndex,index)].y = 0;
-				cRSizes0[unityIndex] += -1;
+				removedPointCount++;
+				z++;
 			}
 
 		}
@@ -397,45 +477,60 @@ void removeAberrations(int unityIndex)
 	
 	// Vertical scan analysis
 	// Compute the average pixel count in a vertical scan
+
 	sumTotal = 0;
-	for (j = p.jStart; j <= p.jFinish; ++j)
+	int k = 0;
+	for (j = 0; j < p.procRegionjSize; ++j)
 	{
 		sum = 0;
-		for (i = p.iStart; i <= p.iFinish; ++i)
+		numRow = 0;
+		for (i =0; i < p.procRegionjSize; ++i)
 		{
-			sum += cRBinary[I3D(unityIndex,j,i)];
+			if (cRBinary[I3D(unityIndex,i,j)] != 0)
+			{
+				sum += cRBinary[I3D(unityIndex,i,j)];
+				crIndex[k][numRow] = i;
+				++numRow;
+			}
 		}
-		colCount[j-p.jStart] = sum;
-		sumTotal += sum;
+		
+		if (sum != 0)
+		{
+			colCount[k] = sum;
+			colIndex[k] =  j;
+			sumTotal += sum;
+			k++;
+		}
+		
 	}
-	avgColCount = sumTotal/(p.jFinish-p.jStart+1);
+	avgColCount = sumTotal/(k);
 	
 	
 	// Compute the standard deviation of pixel count in vertical scan
 	sumTotal = 0;
-	for (j = 0; j<= p.jFinish-p.jStart; ++j)
+	for (j = 0; j < k; ++j)
 	{
-		sumTotal += pow(colCount[j]-avgColCount,2);
+		sumTotal += (colCount[j]-avgColCount)*(colCount[j]-avgColCount);
 	}
-	stdColCount = sumTotal/(p.jFinish-p.jStart+1);
-	
-	for (j = 0; j<= p.jFinish-p.jStart; ++j)
+	stdColCount = sqrt(sumTotal/(k));
+	for (j = 0; j < k; ++j)
 	{
-		if (colCount[j] < avgColCount - 2*stdColCount)
+		if (colCount[j] < avgColCount - 1.5*stdColCount)
 		{
-			for (i = p.iStart; i <= p.iFinish; ++i)
+			for (i = 0; i < colCount[j]; ++i)
 			{
-				index = cRMap[I3D(unityIndex,j+p.jStart,i)];
+				index = cRMap[I3D(unityIndex,crIndex[j][i],colIndex[j])];
+       			removedPoints[z].x = cRPointList[I2D(unityIndex,index)].x;	
+				removedPoints[z].y = cRPointList[I2D(unityIndex,index)].y;
 				cRPointList[I2D(unityIndex,index)].x = 0;	
 				cRPointList[I2D(unityIndex,index)].y = 0;
-				cRSizes0[unityIndex] += -1;	
+				removedPointCount++;
+				z++;
 			}
 		}
 	}
-
-	free(rowCount); free(colCount);
+	//free(rowCount); free(rcIndex); free(rowIndex);
 }
-
 
 void addProcessingOverlay(IplImage *img, int unityIndex, point centroid)
 {
@@ -480,9 +575,12 @@ void addProcessingOverlay(IplImage *img, int unityIndex, point centroid)
 			{
 				ind = I2D(i,j);
 				x = cRPointList[I2D(i,j)].x; y = cRPointList[I2D(i,j)].y;
-				data[x*step + y*channels + 0] = 0;
-				data[x*step + y*channels + 1] = 0;
-				data[x*step + y*channels + 2] = 255;
+				if (x != 0 && y != 0)
+				{
+					data[x*step + y*channels + 0] = 0;
+					data[x*step + y*channels + 1] = 0;
+					data[x*step + y*channels + 2] = 255;
+				}
 			}
 		}
 	#endif
@@ -494,9 +592,12 @@ void addProcessingOverlay(IplImage *img, int unityIndex, point centroid)
 			{
 				ind = I2D(i,j);
 				x = cRPointList[I2D(candidateRegionIndices[i],j)].x; y = cRPointList[I2D(candidateRegionIndices[i],j)].y;
-				data[x*step + y*channels + 0] = 255;
-				data[x*step + y*channels + 1] = 0;
-				data[x*step + y*channels + 2] = 0;
+				if (x != 0 && y != 0)
+				{
+					data[x*step + y*channels + 0] = 255;
+					data[x*step + y*channels + 1] = 0;
+					data[x*step + y*channels + 2] = 0;
+				}
 			}
 		}
 	#endif
@@ -512,9 +613,25 @@ void addProcessingOverlay(IplImage *img, int unityIndex, point centroid)
 				data[x*step + y*channels + 1] = 255;
 				data[x*step + y*channels + 2] = 0;
 			}
+		
 		}
 	#endif
-
+	
+	#ifdef SHOW_PIXELS_REMOVED
+	  if(unityIndex != -1)	
+	  {
+		  for (j =0 ; j < removedPointCount; ++j)
+			{
+				x = removedPoints[j].x; y = removedPoints[j].y; 
+				if (x != 0 && y != 0)
+				{
+					data[x*step + y*channels + 0] = 255;
+					data[x*step + y*channels + 1] = 255;
+					data[x*step + y*channels + 2] = 0;
+				}
+			}
+	  }
+	#endif
 	#ifdef SHOW_CENTROID_LOCATION
 		// Draw vertical line
 	
@@ -522,9 +639,9 @@ void addProcessingOverlay(IplImage *img, int unityIndex, point centroid)
 		for (i = 0; i < p.imgHeight; ++i)
 		{
 		
-			data[i*step + centroid.y*channels + 0] = 255;
-			data[i*step + centroid.y*channels + 1] = 0;
-			data[i*step + centroid.y*channels + 2] = 255;
+			data[i*step + centroid.x*channels + 0] = 255;
+			data[i*step + centroid.x*channels + 1] = 0;
+			data[i*step + centroid.x*channels + 2] = 255;
 
 		}
 	
@@ -533,9 +650,9 @@ void addProcessingOverlay(IplImage *img, int unityIndex, point centroid)
 		//for (j = p.jStart; j <= p.jFinish; ++j)			//  Draw inside processing region
 		for (j = 0; j < p.imgWidth; ++j)
 		{
-			data[centroid.x*step + j*channels + 0] = 255;
-			data[centroid.x*step + j*channels + 1] = 0;
-			data[centroid.x*step + j*channels + 2] = 255;
+			data[centroid.y*step + j*channels + 0] = 255;
+			data[centroid.y*step + j*channels + 1] = 0;
+			data[centroid.y*step + j*channels + 2] = 255;
 
 		}
 	#endif

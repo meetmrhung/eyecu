@@ -23,4 +23,7 @@ void addProcessingOverlay(IplImage *img, int unityIndex, point centroid);
 // Finds the centroid of the region selected as the pupil
 point computeCentroid(int unityIndex);
 
+// Compares the reference centroid and the computed centroid to determine direction
+void compareCentroids(point centroid);
+
 #endif
