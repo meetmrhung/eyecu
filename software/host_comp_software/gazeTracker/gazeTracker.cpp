@@ -28,7 +28,7 @@ param p = {
 	0.6,				//  aspectMin
 	2.0,				//  aspectMax
 
-	0,					// lengthRegion
+	27.91,				// lengthRegion
 	1.4,				// legthMaxRatio
 	0.6,				// lengthMinRatio
 
@@ -42,12 +42,12 @@ param p = {
 	0,					//  procRegionjSize*
 	0,					//  totalPixels (procRegioniSize * procRegionjSize * MAX_TOTAL_REGIONS)
 
-	{0,0},				//  refCentroid
+	{352,214},			//  refCentroid
 	45,					//  initThreshold
 
-	15,					//  minxChangeL
-	15,					//  minxChangeR
-	18,					//  minyChangeU
+	14,					//  minxChangeL
+	14,					//  minxChangeR
+	14,					//  minyChangeU
 	5,					//  minyChangeD
 
 	10,					//	maxNumFrames
@@ -77,7 +77,8 @@ int doCalibration = 0;				//  Stores pupil size and centroid as reference if set
 point centroid;
 int consecDirFrame;					//  Counts number of consecutive frames user is looking in particular direction
 enum resultType procResult;			//  Stores processing result (see definition)
-int prevResultType = 0;				//  stores the processing result of the previous frame. Used to assure consecutive number of frames in particular direction. 
+int cursorCommand = 2;				//	Stores the cursor command (related to procResult). Originally assume that user is looking in the middle
+int prevResultType;					//  stores the processing result of the previous frame. Used to assure consecutive number of frames in particular direction. 
 double maxLengthConnected;			//  Maximum length of the connected region allowed to pass as the pupil
 double minLengthConnected;			//  Minimum length of the connected region allowed to pass as the pupil
 
@@ -387,7 +388,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	//  Allocate memory for an image
 	IplImage *img;
 	//  OpenCV reference says we shouldn't modify the output of cvQueryFrame
-	//    so this is used to store a copy.
+	//  so this is used to store a copy.
 	IplImage *dst  = cvCreateImage(cvSize(frameW, frameH), depth, channels);
 
 	computeParameters(frameW, frameH);
@@ -407,7 +408,7 @@ int _tmain(int argc, _TCHAR* argv[])
 			cvShowImage("mainWin", dst );
 			cvWaitKey(10);
 		#endif
-
+		printf("Length of the region %f\n", p.lengthRegion);
 		c = getch();
 		if(c == 'g')
 			break;
@@ -445,8 +446,11 @@ int _tmain(int argc, _TCHAR* argv[])
 		case 'W':
 			p.iStart += 20;
 			break;
+			
 		}
+		
 	}
+	doCalibration = 0;
 	for(i = 1; i < numFrames; ++i)
 #else
 	for(i = 0; i < numFrames; ++i)

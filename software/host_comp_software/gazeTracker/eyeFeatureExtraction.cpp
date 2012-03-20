@@ -14,6 +14,7 @@ extern int* cRSizes0;
 extern int* cRSizes1;
 extern int cRCount;
 extern enum resultType procResult;
+extern int cursorCommand;
 extern int maxRegionSize;
 extern unsigned char* processedPixels;
 extern unsigned char* gSImg;
@@ -39,7 +40,7 @@ void processFrame(IplImage *img)
 	point centroid = {0,0};
 	int numAdapt = 0;
 	int threshold = p.initThreshold;
-	procResult = isBlink; 
+	procResult = isBlink;			// Assume initially that user is blinking for each frame
 	int unityIndex = -1;
 	fillGreyScale(img);
 
@@ -74,7 +75,7 @@ void processFrame(IplImage *img)
 				{
 					procResult = isPupil;
 					removedPointCount = 0;
-					removeAberrations(unityIndex);
+					//removeAberrations(unityIndex);
 				}
 			}
 			++numAdapt;
@@ -94,19 +95,15 @@ void processFrame(IplImage *img)
 			p.refCentroid = centroid;
 			p.refSize = cRSizes0[unityIndex];
 			p.lengthRegion = 2*sqrt((p.refSize)/(3.1415));
-			maxLengthConnected = p.lengthRegion*p.lengthMaxRatio;
-			minLengthConnected = p.lengthRegion*p.lengthMinRatio; 
-			doCalibration = 0;
 		}
 	#endif
 
 	#ifdef DEBUG_OUTPUT
-		printf("Centroid: (%u, %u)\n\n", centroid.x, centroid.y);
-	#endif
-	if (procResult == isPupil)
-	{
-		generateCursorCommand(centroid);
-	}
+		printf("Reference Centroid: (%u, %u)\n", p.refCentroid.x, p.refCentroid.y);
+		printf("Centroid: (%u, %u)\n", centroid.x, centroid.y);
+	#endif	
+	generateCursorCommand(centroid);
+
 	addProcessingOverlay(img, unityIndex, centroid);
 }
 
@@ -247,7 +244,8 @@ int findUnityRatio()
 	int xcount, ycount = 0;								// horizontal and vertical length of the image
 	double dummyratio = 0;									//dummy aspect ratio
 	int unityIndex = -1;										// Output index value 
-
+	maxLengthConnected = p.lengthRegion*p.lengthMaxRatio;
+	minLengthConnected = p.lengthRegion*p.lengthMinRatio; 
 	candidateRegionCount = 0;
 	for (k = 0; k < cRCount; ++k)
 	{
@@ -288,6 +286,7 @@ int findUnityRatio()
 		#endif
 		if (cRAspectRatio[k] < p.aspectMax && cRAspectRatio[k] > p.aspectMin)
 		{
+		#ifdef CALIBRATION_ACTIVE
 			if(doCalibration == 1)
 			{
 				candidateRegionIndices[candidateRegionCount++] = k;
@@ -312,6 +311,18 @@ int findUnityRatio()
 					procResult = isPupil;
 				}
 			}
+		#else
+			if (ycount < maxLengthConnected && ycount > minLengthConnected && xcount < maxLengthConnected && xcount > minLengthConnected)
+				{
+					candidateRegionIndices[candidateRegionCount++] = k;
+					if (abs(dummyratio-1) > abs(cRAspectRatio[k]-1))
+					{
+						dummyratio = cRAspectRatio[k];
+						unityIndex = k;
+					}
+					procResult = isPupil;
+				}
+		#endif
 		}
 
 	}
@@ -343,53 +354,59 @@ void generateCursorCommand(point centroid)
 	int xdist = centroid.x - p.refCentroid.x;
 	int ydist = centroid.y - p.refCentroid.y;
 	
+	if (procResult !=  isBlink)
+	{
+		if (abs(xdist) > abs(ydist))
+		{
+			if (xdist > 0 && xdist > p.minxChangeL)
+			{
+				 procResult = isLeft;
+			}
+			else if (xdist < 0 && abs(xdist) > p.minxChangeR)
+			{
+				 procResult = isRight;
+			}
+			else
+			{
+				procResult = isMiddle;
+			}
+		}
+		else
+		{
+			if (ydist > 0 && ydist > p.minyChangeD)
+			{
+				procResult = isDown;
+			}
+			else if (ydist < 0 && abs(ydist) > p.minyChangeU)
+			{
+				procResult = isUp;
+			}
+			else
+			{
+				procResult = isMiddle;
+			}
+		}
+	}
+		if (prevResultType == procResult)
+		{
+			consecDirFrame++;
+		}
+		else
+		{
+			consecDirFrame = 0;
+		}
+
 	
-	if (abs(xdist) > abs(ydist))
-	{
-		if (xdist > 0 && xdist > p.minxChangeL)
-		{
-			 procResult = isLeft;
-		}
-		else if (xdist < 0 && abs(xdist) > p.minxChangeR)
-		{
-		 	 procResult = isRight;
-		}
-		else
-		{
-			procResult = isMiddle;
-		}
-	}
-	else
-	{
-		if (ydist > 0 && ydist > p.minyChangeD)
-		{
-			procResult = isDown;
-		}
-		else if (ydist < 0 && abs(ydist) > p.minyChangeU)
-		{
-			procResult = isUp;
-		}
-		else
-		{
-			procResult = isMiddle;
-		}
-	}
-	if (prevResultType == procResult)
-	{
-		consecDirFrame++;
-	}
-	else
-	{
-		consecDirFrame = 0;
-	}
 	if (consecDirFrame == p.maxNumFrames)
 	{
 		consecDirFrame = 0;
-		#ifdef DEBUG_OUTPUT
-			printf("The direction of the gaze is: %d\n", procResult);
-			printf("\n");
-		#endif	
+		cursorCommand = procResult;
 	}
+	#ifdef DEBUG_OUTPUT
+			printf("The output direction for this frame is: %d\n", procResult);
+			printf("The cursor command is: %d\n", cursorCommand);
+			printf("\n");
+    #endif	
 	prevResultType = procResult;
 }
 
@@ -400,6 +417,7 @@ void removeAberrations(int unityIndex)
 	double* rowCount = (double*)malloc(p.procRegioniSize * sizeof(double));
 	double* colCount = (double*)malloc(p.procRegionjSize * sizeof(double));;
 	int* rowValue = (int*)malloc(p.procRegioniSize * sizeof(int));
+	//int* rcIndex = (int*)malloc(p.procRegioniSize * p.procRegionjSize * sizeof(int));
 	int  rcIndex [300][30];
 	int  crIndex [300][30];
 	int* colIndex = (int*)malloc(p.procRegionjSize * sizeof(int));
@@ -451,6 +469,7 @@ void removeAberrations(int unityIndex)
 	
 	// Compute the standard deviation of pixel count in horizontal scan
 	sumTotal = 0;
+	z = 0;
 	for (i = 0; i < rowIndex; ++i)
 	{
 		sumTotal += (rowCount[i]-avgRowCount)*(rowCount[i]-avgRowCount);
@@ -458,7 +477,7 @@ void removeAberrations(int unityIndex)
 	stdRowCount = sqrt(sumTotal/(rowIndex));
 	for (i = 0; i < rowIndex ;++i)
 	{
-		if (rowCount[i] < avgRowCount - 1.5*stdRowCount)
+		if (rowCount[i] < avgRowCount - 0.8*stdRowCount)
 		{
 			for (j = 0; j < rowCount[i]; ++j)
 			{
@@ -515,7 +534,7 @@ void removeAberrations(int unityIndex)
 	stdColCount = sqrt(sumTotal/(k));
 	for (j = 0; j < k; ++j)
 	{
-		if (colCount[j] < avgColCount - 1.5*stdColCount)
+		if (colCount[j] < avgColCount - 0.8*stdColCount)
 		{
 			for (i = 0; i < colCount[j]; ++i)
 			{
@@ -529,7 +548,7 @@ void removeAberrations(int unityIndex)
 			}
 		}
 	}
-	//free(rowCount); free(rcIndex); free(rowIndex);
+	free(rowCount); free(rowValue);
 }
 
 void addProcessingOverlay(IplImage *img, int unityIndex, point centroid)
