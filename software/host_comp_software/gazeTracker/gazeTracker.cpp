@@ -33,8 +33,8 @@ param p = {
 	0.6,				// lengthMinRatio
 
 	516,				//  refSize
-	0.6,				//  refSizeMinRatio
-	1.4,				//  refSizeMaxRatio
+	0.8,				//  refSizeMinRatio
+	1.2,				//  refSizeMaxRatio
 	0,					//  refSizeMin*
 	0,					//  refSizeMax*
 
@@ -45,12 +45,15 @@ param p = {
 	{352,214},			//  refCentroid
 	45,					//  initThreshold
 
-	14,					//  minxChangeL
-	14,					//  minxChangeR
+	0.7,				// numStdVertical
+	1.5,				// numStdHorizontal
+
+	8,					//  minxChangeL
+	8,					//  minxChangeR
 	14,					//  minyChangeU
 	5,					//  minyChangeD
 
-	10,					//	maxNumFrames
+	5,					//	maxNumFrames
 
 	4,					//  maxAdaptations
 	{8,4,2,1},			//  magThreshChange
@@ -58,6 +61,8 @@ param p = {
 	0,					//  nFrames
 	0					//  startFrame
 };
+
+point dirArray[5] = {{0,0},{1,0},{-1,0},{0,1},{0,-1}};
 
 point* cRPointList;					//  cRPointList[I2D(k,i)] = ith point of region k
 point* removedPoints;				//  Keeps track of points removed in removeAberrations
@@ -81,6 +86,8 @@ int cursorCommand = 2;				//	Stores the cursor command (related to procResult). 
 int prevResultType;					//  stores the processing result of the previous frame. Used to assure consecutive number of frames in particular direction. 
 double maxLengthConnected;			//  Maximum length of the connected region allowed to pass as the pupil
 double minLengthConnected;			//  Minimum length of the connected region allowed to pass as the pupil
+int cursorSpeed = 5;
+
 
 void computeParameters(int width, int height)
 {
@@ -171,7 +178,7 @@ int _tmain(int argc, _TCHAR* argv[])
 #ifdef CAPTURE_CAMERA
 int _tmain(int argc, _TCHAR* argv[])
 {
-	printf("Capturing camerea...\n");
+	printf("Capturing camera...\n");
 
 	int c;
 	int i;
@@ -189,7 +196,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	double sec, fps_measure;
 
 	//  Capture from video device #1
-	CvCapture* capture = cvCaptureFromCAM(1);
+	CvCapture* capture = cvCaptureFromCAM(0);
 
 	//  Modify capture resolution
 	cvSetCaptureProperty( capture, CV_CAP_PROP_FRAME_WIDTH, 640);
@@ -214,7 +221,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	IplImage *img;
 	
 	//  OpenCV reference says we shouldn't modify the output of cvQueryFrame
-	//    so this is used to store a copy.
+	//  so this is used to store a copy.
 	IplImage *dst  = cvCreateImage(cvSize(frameW, frameH), depth, channels);
 	
 
@@ -223,22 +230,61 @@ int _tmain(int argc, _TCHAR* argv[])
 	counter = 0;
 	computeParameters(frameW, frameH);
 	storageInit();
+	
+	
 	while(1)
 	{
 		img = cvQueryFrame(capture);
+		cvCopy( img, dst, NULL);
+		Calibration(dst);
 		#ifdef DISPLAY_OUTPUT
-			cvShowImage("mainWin", img);
+			//  Show the image in the window
+			cvShowImage("mainWin", dst );
 		#endif
-
 		//  Calculate FPS and output
 		time(&t_end);
 		++counter;
 		double sec = difftime(t_end, t_start);
 		fps_measure = counter/sec;
-		printf("FPS: %lf\n",fps_measure);
+		printf("FPS: %.2lf, T: %u, S: %.2lf, C: (%u,%u)\n",fps_measure,p.initThreshold, p.refSize);
 		c = cvWaitKey(30);
 		if(c == 'g')
 			break;
+		
+		switch(c)
+		{
+		case 'r':
+			p.initThreshold++;
+			break;
+		case 'f':
+			p.initThreshold--;
+			break;
+		case 'a':
+			p.jStart -= 20;
+			break;
+		case 'A':
+			p.jStart += 20;
+			break;
+		case 's':
+			p.iFinish += 20;
+			break;
+		case 'S':
+			p.iFinish -= 20;
+			break;
+		case 'd':
+			p.jFinish += 20;
+			break;
+		case 'D':
+			p.jFinish -= 20;
+			break;
+		case 'w':
+			p.iStart -= 20;
+			break;
+		case 'W':
+			p.iStart += 20;
+			break;
+		}
+
 	}
 
 	time(&t_start);
@@ -248,10 +294,11 @@ int _tmain(int argc, _TCHAR* argv[])
 		//  Retrieve the captured frame
 		img = cvQueryFrame(capture);
 		cvCopy( img, dst, NULL);
+	
 		
 		//  In this version, getConnectedRegions thresholds and modifies dst
 		processFrame(dst);
-
+		
 		#ifdef DISPLAY_OUTPUT
 			//  Show the image in the window
 			cvShowImage("mainWin", dst );
@@ -263,6 +310,8 @@ int _tmain(int argc, _TCHAR* argv[])
 		sec = difftime(t_end, t_start);
 		fps_measure = counter/sec;
 		printf("FPS: %.2lf, T: %u, S: %.2lf, C: (%u,%u)\n",fps_measure,p.initThreshold, p.refSize, p.refCentroid.x, p.refCentroid.y);
+		printf("MinL: %u, MinR: %u, MinD: %u, MinU: %u\n", p.minxChangeL, p.minxChangeR, p.minyChangeD, p.minyChangeU);
+		printf("Speed: %u\n", cursorSpeed);
 
 		//  Wait 10 ms for a key to be pressed
 		c = cvWaitKey(10);
@@ -311,6 +360,36 @@ int _tmain(int argc, _TCHAR* argv[])
 		case 'W':
 			p.iStart += 20;
 			break;
+		case 'j':
+			p.minxChangeL += 1;
+			break;
+		case 'J':
+			p.minxChangeL -= 1;
+			break;
+		case 'k':
+			p.minyChangeD += 1;
+			break;
+		case 'K':
+			p.minyChangeD -= 1;
+			break;
+		case 'i':
+			p.minyChangeU += 1;
+			break;
+		case 'I':
+			p.minyChangeU -= 1;
+			break;
+		case 'l':
+			p.minxChangeR += 1;
+			break;
+		case 'L':
+			p.minxChangeR -= 1;
+			break;
+		case 'y':
+			cursorSpeed++;
+			break;
+		case 'h':
+			cursorSpeed--;
+			break;
 		}
 		if(c != -1)
 		{
@@ -319,12 +398,10 @@ int _tmain(int argc, _TCHAR* argv[])
 			storageInit();
 		}
 
-	
-
-		#ifdef RECORD_OUTPUT
+#ifdef RECORD_OUTPUT
 			//  Output to video file
 			cvWriteFrame(writer,dst);
-		#endif
+#endif
 	}
 
 	#ifdef RECORD_OUTPUT
@@ -398,17 +475,19 @@ int _tmain(int argc, _TCHAR* argv[])
 #ifdef CALIBRATION_ACTIVE
 	img = cvQueryFrame(capture);
 	doCalibration = 1;
+	printf("Adjust the boundaries to pinpoint the pupil. Then adjust threshold until pupil region is approximately filled\n");
+	printf("Press G when finished\n");
+	
 	while(1)
 	{
 		cvCopy( img, dst, NULL);
 			
-		processFrame(dst);
+		Calibration(dst);
 		#ifdef DISPLAY_OUTPUT
 			//  Show the image in the window
 			cvShowImage("mainWin", dst );
 			cvWaitKey(10);
 		#endif
-		printf("Length of the region %f\n", p.lengthRegion);
 		c = getch();
 		if(c == 'g')
 			break;
@@ -423,33 +502,85 @@ int _tmain(int argc, _TCHAR* argv[])
 			p.initThreshold--;
 			break;
 		case 'a':
-			p.jStart -= 20;
+			p.jStart -= 10;
 			break;
 		case 'A':
-			p.jStart += 20;
+			p.jStart += 10;
 			break;
 		case 's':
-			p.iFinish += 20;
+			p.iFinish += 10;
 			break;
 		case 'S':
-			p.iFinish -= 20;
+			p.iFinish -= 10;
 			break;
 		case 'd':
-			p.jFinish += 20;
+			p.jFinish += 10;
 			break;
 		case 'D':
-			p.jFinish -= 20;
+			p.jFinish -= 10;
 			break;
 		case 'w':
-			p.iStart -= 20;
+			p.iStart -= 10;
 			break;
 		case 'W':
-			p.iStart += 20;
+			p.iStart += 10;
 			break;
 			
 		}
 		
 	}
+	printf("Adjust the boundaries to find region of interest for pupil tracking \n");
+	printf("Press G when finished\n");
+	while(1)
+	{
+		cvCopy( img, dst, NULL);
+			
+		Calibration(dst);
+		#ifdef DISPLAY_OUTPUT
+			//  Show the image in the window
+			cvShowImage("mainWin", dst );
+			cvWaitKey(10);
+		#endif
+		c = getch();
+		if(c == 'g')
+			break;
+	
+		// escape key terminates program
+		switch(c)
+		{
+	
+		case 'a':
+			p.jStart -= 10;
+			break;
+		case 'A':
+			p.jStart += 10;
+			break;
+		case 's':
+			p.iFinish += 10;
+			break;
+		case 'S':
+			p.iFinish -= 10;
+			break;
+		case 'd':
+			p.jFinish += 10;
+			break;
+		case 'D':
+			p.jFinish -= 10;
+			break;
+		case 'w':
+			p.iStart -= 10;
+			break;
+		case 'W':
+			p.iStart += 10;
+			break;
+			
+		}
+		
+	}
+	printf("%f", p.refSize);
+	storageDestroy();
+	computeParameters(p.imgWidth, p.imgHeight);
+	storageInit();
 	doCalibration = 0;
 	for(i = 1; i < numFrames; ++i)
 #else

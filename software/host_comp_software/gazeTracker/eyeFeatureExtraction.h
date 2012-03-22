@@ -5,6 +5,9 @@
 //  Goal: Create cR, cRSizes, cRCount
 void processFrame(IplImage *img);
 
+// Goal: Has the user select the boundaries for calibration.
+void Calibration(IplImage *img);
+
 //  Fill 2D array with greyscale values
 void fillGreyScale(IplImage *img);
 
