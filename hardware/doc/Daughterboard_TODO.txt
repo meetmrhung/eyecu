@@ -1,10 +1,12 @@
-+ change offsheet connectors to netlists
+- change offsheet connectors to netlists
 	-camera done
 	-camera interface done
-+ lower curent through amber LEDs
-+ look for a better way to route camera
+	-beagle interface done
+	-power board eliminated
+- lower curent through amber LEDs
+- look for a better way to route camera
 - modify cam rst?
-+ label all pins for connector to beagle
+- label all pins for connector to beagle
 - add 0 ohm Rs to power lines
 - move line regs to camera board?
 
@@ -12,14 +14,14 @@
 - fets to be able to turn off and on 1.5 and 2.8 lines
 + smaller headers and cable for camera board? Check what Samtec can do
 - perhaps look for a different level shifter that is more suitable?
-+ what should we do with vsync and hsync?
+- what should we do with vsync and hsync?
 - change oscillator to the same that Rapid Fire used
 - change line regs to what Rapid Fire used (having trouble with the 2.8V reg)
 + mount point for lenses on camera board?
 
 
 Relayout:
-	+ Move level shifter + fets to camera board
+	- Move level shifter + fets to camera board
 	+ Widen headers by 1 row (P1 and P2 are too close together)
 	+ Make header holes slightly larger
 	+ XBee header holes ? larger. Currently dip package, change to full size?
