@@ -5,6 +5,7 @@
 #include <highgui.h>
 #include <time.h>
 #include <conio.h>
+#include <Windows.h>
 
 #include "eyeFeatureExtraction.h"
 #include "eFEParam.h"
@@ -33,8 +34,8 @@ param p = {
 	0.6,				// lengthMinRatio
 
 	516,				//  refSize
-	0.8,				//  refSizeMinRatio
-	1.2,				//  refSizeMaxRatio
+	0.6,				//  refSizeMinRatio
+	1.8,				//  refSizeMaxRatio
 	0,					//  refSizeMin*
 	0,					//  refSizeMax*
 
@@ -160,16 +161,16 @@ int _tmain(int argc, _TCHAR* argv[])
 	pointStackPrint(stackHead);
 
 	printf("Allocating storage\n");
-	getch();
+	_getch();
 	storageInit();
 	int loc = I3D( (p.maxTotalRegions-1), (p.iFinish-p.iStart), (p.jFinish-p.jStart) );
 	cRBinary[loc] = 25;
 	cRMap[loc] = 25;
 	printf("Deallocating storage\n");
-	getch();
+	_getch();
 	storageDestroy();
 
-	getch();
+	_getch();
 	return(1);
 }
 #endif
@@ -438,12 +439,46 @@ int _tmain(int argc, _TCHAR* argv[])
 	int stepVideoOn = 1;
 	int stepVideoCount = 0;
 
-	uchar* data;			//  Type cast for image data
 	int threshold = p.initThreshold;
 	
-	time_t t_start,t_end;
-	double sec;
 
+
+	#ifdef GET_PARAMETERS_FROM_PYTHON
+		//  Memory mapping
+		HANDLE hMapFile;
+		LPCTSTR pBuf;
+		TCHAR buffName[] = TEXT("Local\\GazeTrackerFileMapping");
+	
+		hMapFile = OpenFileMapping(
+                   FILE_MAP_ALL_ACCESS,   // read/write access
+                   FALSE,                 // do not inherit the name
+                   buffName);  
+		if (hMapFile == NULL)
+		{
+			_tprintf(TEXT("Could not create file mapping object (%d). Please ensure that the Python GUI is running first.\n"),
+			GetLastError());
+			_getch();
+			return(1);
+		}
+		pBuf = (LPTSTR) MapViewOfFile(hMapFile,   // handle to map object
+							FILE_MAP_ALL_ACCESS, // read/write permission
+							0,
+							0,
+							256);
+
+		if (pBuf == NULL)
+		{
+			_tprintf(TEXT("Could not create file mapping object (%d). Please ensure that the Python GUI is running first.\n"), GetLastError());
+			CloseHandle(hMapFile);
+			_getch();
+			return(1);
+		}
+		
+		int* fileParam = (int*)pBuf;
+		*fileParam = p.initThreshold;
+	#endif
+
+	//  End memory mapping
 	//  Capture video from file
 	CvCapture* capture = cvCaptureFromAVI(p.inFile);
 	int numFrames = (int) cvGetCaptureProperty(capture,  CV_CAP_PROP_FRAME_COUNT);	
@@ -464,33 +499,42 @@ int _tmain(int argc, _TCHAR* argv[])
 	int frameH = (int)cvGetCaptureProperty(capture, CV_CAP_PROP_FRAME_HEIGHT);
 	//  Allocate memory for an image
 	IplImage *img;
+	IplImage** dst = (IplImage**)malloc(numFrames * sizeof(IplImage*));
+	IplImage* tempImg = cvCreateImage(cvSize(frameW, frameH), depth, channels);
 	//  OpenCV reference says we shouldn't modify the output of cvQueryFrame
 	//  so this is used to store a copy.
-	IplImage *dst  = cvCreateImage(cvSize(frameW, frameH), depth, channels);
-
+	for(i = 0; i < numFrames; ++i)
+	{
+		img = cvQueryFrame(capture);
+		dst[i]  = cvCreateImage(cvSize(frameW, frameH), depth, channels);
+		cvCopy(img, dst[i], NULL);
+	}
+	
 	computeParameters(frameW, frameH);
 	storageInit();
-	time(&t_start);
 
 #ifdef CALIBRATION_ACTIVE
-	img = cvQueryFrame(capture);
-	doCalibration = 1;
 	printf("Adjust the boundaries to pinpoint the pupil. Then adjust threshold until pupil region is approximately filled\n");
-	printf("Press G when finished\n");
-	
+	printf("Press G when finished\n");	
+	int updateValues = 1;
 	while(1)
 	{
-		cvCopy( img, dst, NULL);
+		cvCopy(dst[0], tempImg, NULL);
 			
-		Calibration(dst);
+		Calibration(tempImg, updateValues);
 		#ifdef DISPLAY_OUTPUT
 			//  Show the image in the window
-			cvShowImage("mainWin", dst );
-			cvWaitKey(10);
+			cvShowImage("mainWin", tempImg );
+			c = cvWaitKey(100);
 		#endif
-		c = getch();
+		//c = _getch();
 		if(c == 'g')
-			break;
+		{
+			if(updateValues == 1)
+				updateValues = 0;
+			else
+				break;
+		}
 	
 		// escape key terminates program
 		switch(c)
@@ -525,77 +569,41 @@ int _tmain(int argc, _TCHAR* argv[])
 		case 'W':
 			p.iStart += 10;
 			break;
-			
-		}
-		
-	}
-	printf("Adjust the boundaries to find region of interest for pupil tracking \n");
-	printf("Press G when finished\n");
-	while(1)
-	{
-		cvCopy( img, dst, NULL);
-			
-		Calibration(dst);
-		#ifdef DISPLAY_OUTPUT
-			//  Show the image in the window
-			cvShowImage("mainWin", dst );
-			cvWaitKey(10);
-		#endif
-		c = getch();
-		if(c == 'g')
-			break;
-	
-		// escape key terminates program
-		switch(c)
-		{
-	
-		case 'a':
-			p.jStart -= 10;
-			break;
-		case 'A':
-			p.jStart += 10;
-			break;
-		case 's':
-			p.iFinish += 10;
-			break;
-		case 'S':
-			p.iFinish -= 10;
-			break;
-		case 'd':
-			p.jFinish += 10;
-			break;
-		case 'D':
-			p.jFinish -= 10;
-			break;
-		case 'w':
-			p.iStart -= 10;
-			break;
-		case 'W':
-			p.iStart += 10;
+		case 27:
+			exit(1);
 			break;
 			
 		}
-		
+		printf("T: %u, S: %.2lf, C: (%u,%u)\n",p.initThreshold, p.refSize, p.refCentroid.x, p.refCentroid.y);
+		printf("MinL: %u, MinR: %u, MinD: %u, MinU: %u\n", p.minxChangeL, p.minxChangeR, p.minyChangeD, p.minyChangeU);
+
+		#ifdef GET_PARAMETERS_FROM_PYTHON			
+			p.initThreshold = fileParam[0];
+			p.iStart = fileParam[1];
+			p.iFinish = fileParam[2];
+			p.jStart = fileParam[3];
+			p.jFinish = fileParam[4];
+		#endif	
+		storageDestroy();
+		computeParameters(p.imgWidth, p.imgHeight);
+		storageInit();
+
 	}
-	printf("%f", p.refSize);
-	storageDestroy();
-	computeParameters(p.imgWidth, p.imgHeight);
-	storageInit();
-	doCalibration = 0;
-	for(i = 1; i < numFrames; ++i)
-#else
+
+	#ifdef GET_PARAMETERS_FROM_PYTHON
+		UnmapViewOfFile(pBuf);
+		CloseHandle(hMapFile);
+	#endif
+	
+	#endif
+	clock_t t_start = clock();
 	for(i = 0; i < numFrames; ++i)
-#endif
 	{
-		//  Retrieve the captured frame
-		img = cvQueryFrame(capture);
-		cvCopy( img, dst, NULL);
-		
-		processFrame(dst);
+		processFrame(dst[i]);
 
 		#ifdef DISPLAY_OUTPUT
 			//  Show the image in the window
-			cvShowImage("mainWin", dst );
+			cvShowImage("mainWin", dst[i] );
 			cvWaitKey(10);
 		#endif
 
@@ -605,39 +613,54 @@ int _tmain(int argc, _TCHAR* argv[])
 				if(stepVideoCount == 0)
 				{
 					printf("Current Frame: %u\n", i+1);
-					c = getch();
+					while(1)
+					{
+						c = cvWaitKey(100);
+						if(c != -1)
+							break;
+					}
 					if(c == 't')				//  Skip 10 frames
 						stepVideoCount = 10;
 					else if(c == 'f')			//  Skip 50 frames
 						stepVideoCount = 50;
 					else if(c == 'e')			//  Skip to end
 						stepVideoOn = 0;
+
 				}
 				else
 					--stepVideoCount;
 			}
 		#endif
-		
-		#ifdef RECORD_OUTPUT
-			//  Output to video file
-			cvWriteFrame(writer,dst);
-		#endif
 	}
-	time(&t_end);
-	sec  = difftime(t_end,t_start);
-	
+	printf("Time elapsed: %f\n", ((double)clock() - t_start) / CLOCKS_PER_SEC);
+
 	#ifdef RECORD_OUTPUT
+		for(i = 0; i < numFrames; ++i)
+		{
+			//  Output to video file
+			cvWriteFrame(writer,dst[i]);
+		}
 		//  Release video writer
 		cvReleaseVideoWriter(&writer);
 	#endif
 
-	//  Release capture 
+	//  Release capture and images
 	cvReleaseCapture(&capture);
-
+	for(i = 0; i < numFrames; ++i)
+		cvReleaseImage(&(dst[i]));
+	cvReleaseImage(&tempImg);
 	storageDestroy();
 
-	printf("Compute Time: %lf\n", sec);
-	getch();
+	#ifdef DISPLAY_OUTPUT
+		while(1)
+		{
+			c = cvWaitKey(100);
+			if(c != -1)
+				break;
+		}
+	#else
+		_getch();
+	#endif
 	return 0;
 }
 #endif

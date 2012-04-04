@@ -687,7 +687,7 @@ void addProcessingOverlay(IplImage *img, int unityIndex, point centroid)
 	return;
 }
 
-void Calibration(IplImage *img)
+void Calibration(IplImage *img, int updateValues)
 {
 	int width = img->width;
 	int height = img->height;
@@ -695,7 +695,7 @@ void Calibration(IplImage *img)
 	int step = img->widthStep;
 	uchar* data = (uchar *)img->imageData;
 	int i,j;
-	p.refSize = 0;
+	int refSize = 0;
 	int sumx = 0;
 	int sumy = 0;
 	
@@ -708,15 +708,21 @@ void Calibration(IplImage *img)
 					data[i*step+j*channels+0]=0;
 					data[i*step+j*channels+1]=0;
 					data[i*step+j*channels+2]=255;
-					p.refSize += 1;
+					refSize += 1;
 					sumx += j;
 					sumy += i;
 				}
 		}	
 	}
-	p.refCentroid.x = sumx/(p.refSize);
-	p.refCentroid.y = sumy/(p.refSize);
-	p.lengthRegion = 2*sqrt((p.refSize)/(3.1415));
+	if(refSize == 0)
+		refSize = 1;										//  Prevent division by zero
+	if(updateValues == 1)
+	{
+		p.refSize = refSize;
+		p.refCentroid.x = (int)(sumx/(p.refSize));
+		p.refCentroid.y = (int)(sumy/(p.refSize));
+		p.lengthRegion = 2*sqrt((p.refSize)/(3.1415));
+	}
 
 #ifdef CAPTURE_VIDEO
 	#ifdef SHOW_CENTROID_LOCATION

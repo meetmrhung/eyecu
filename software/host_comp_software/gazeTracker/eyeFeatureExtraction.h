@@ -6,7 +6,7 @@
 void processFrame(IplImage *img);
 
 // Goal: Has the user select the boundaries for calibration.
-void Calibration(IplImage *img);
+void Calibration(IplImage *img, int updateValues);
 
 //  Fill 2D array with greyscale values
 void fillGreyScale(IplImage *img);
