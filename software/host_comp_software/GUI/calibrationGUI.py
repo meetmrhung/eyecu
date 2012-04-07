@@ -142,10 +142,11 @@ class App:
 		self.w.grid(row=0,column=0)
 		
 		#  Create buttons
-		self.top.button = Button(self.top, text = "PREVIOUS", command = self.startSecondStage, bd=3, font=("Helvectica", "12", "bold"))
-		self.top.button.grid(row=0,sticky = S+E, padx=120, pady=20)
+		self.top.button = Button(self.top, text = "PREVIOUS", command = self.restartDirectionalCalibration, bd=3, font=("Helvectica", "12", "bold"))
+		self.top.button.grid(row=0,sticky = SE, padx=120, pady=20)
 		self.top.button = Button(self.top, text = "RESTART", command = self.restartCalibration, bd=3, font=("Helvectica", "12", "bold"))
-		self.top.button.grid(row=0,sticky = S+E, padx=20, pady=20)
+		self.top.button.grid(row=0,sticky = SE, padx=20, pady=20)
+		
 		
 		#  Show directions
 		self.directionText = Label(
@@ -162,13 +163,13 @@ class App:
 		self.t = Canvas(self.top,width=50,height=50, background="LightSkyBlue4", bd=0, highlightbackground="LightSkyBlue4")
 		self.t.create_oval(2,2,50,50,fill = "black")
 		self.top.bind("<KeyRelease-space>", self.LookMiddle)
-
+		
 	#  Transition to next step of calibration
 	def LookMiddle(self,event):		
 		self.t.grid(row=0,column=0)
 		self.directionText['text'] = " "
 		self.top.bind("<KeyRelease-space>", self.LookLeft)	
-		
+
 	def LookLeft(self,event):
 		self.t.grid(row=0,column=0,sticky = W)
 		self.top.bind("<KeyRelease-space>", self.LookRight)	
@@ -186,6 +187,14 @@ class App:
 		self.top.bind("<KeyRelease-space>", self.killWindow)
 		self.statusLabel['text'] = "Calibration complete!"
 	
+	#  Used for 'PREVIOUS' button event
+	#  Restarts directional calibration
+	def restartDirectionalCalibration(self):
+		self.top.bind("<KeyRelease-space>", self.LookMiddle)
+		self.t.grid_forget()
+		self.directionText['text'] = self.step3Text
+		self.directionText.grid()
+		
 	#  Restart for use from main window 
 	def restartCalibration0(self):
 		self.stage = 0
@@ -206,12 +215,13 @@ class App:
 		self.top.destroy()
 		
 root = Tk()			#  Initialize root
-root.wm_title('Gaze Tracker')			#  Set window title
+root.wm_title('eye CU - Gaze Tracker')			#  Set window title
 
 #  Set window icon
 scriptpath = os.path.dirname(sys.argv[0])
 scriptpath += '\\eye.ico'
-root.iconbitmap(default=scriptpath)
+if os.path.exists(scriptpath):
+	root.iconbitmap(default=scriptpath)
 root.grid()
 
 app = App(root)
