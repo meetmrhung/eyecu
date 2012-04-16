@@ -130,7 +130,7 @@ class App:
 		self.top = Toplevel()						#  toplevel = window
 		self.top.overrideredirect(1)				#  Override Redirect Flag -- Use for fullscreen
 		self.top.state("zoomed")					#  Fullscreen
-		
+		self.stage = 2;								#  					
 		#  Get screen dimensions
 		width = self.top.winfo_screenwidth()
 		height  = self.top.winfo_screenheight()
@@ -169,24 +169,29 @@ class App:
 		self.t.grid(row=0,column=0)
 		self.directionText['text'] = " "
 		self.top.bind("<KeyRelease-space>", self.LookLeft)	
-
+		self.calibDirection = 0;
+		
 	def LookLeft(self,event):
 		self.t.grid(row=0,column=0,sticky = W)
 		self.top.bind("<KeyRelease-space>", self.LookRight)	
-	
+		self.calibDirection = 1;
+		
 	def LookRight(self,event):
 		self.t.grid(row=0,column=0,sticky = E)
 		self.top.bind("<KeyRelease-space>", self.LookUp)	
-	
+		self.calibDirection = 2;
+		
 	def LookUp(self,event):
 		self.t.grid(row=0,column=0,sticky = N)
 		self.top.bind("<KeyRelease-space>", self.LookDown)	
-	
+		self.calibDirection = 3;
+		
 	def LookDown(self,event):
 		self.t.grid(row=0,column=0,sticky = S)
 		self.top.bind("<KeyRelease-space>", self.killWindow)
 		self.statusLabel['text'] = "Calibration complete!"
-	
+		self.calibDirection = 4;
+		
 	#  Used for 'PREVIOUS' button event
 	#  Restarts directional calibration
 	def restartDirectionalCalibration(self):

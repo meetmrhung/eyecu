@@ -88,7 +88,7 @@ int prevResultType;					//  stores the processing result of the previous frame. 
 double maxLengthConnected;			//  Maximum length of the connected region allowed to pass as the pupil
 double minLengthConnected;			//  Minimum length of the connected region allowed to pass as the pupil
 int cursorSpeed = 5;
-
+int stageinCalibration = 0;				// 	Stage in calibration from the GUI
 
 void computeParameters(int width, int height)
 {
@@ -98,7 +98,6 @@ void computeParameters(int width, int height)
 	p.refSizeMax = p.refSize * p.refSizeMaxRatio;
 	p.procRegioniSize = p.iFinish - p.iStart + 1;
 	p.procRegionjSize = p.jFinish - p.jStart + 1;
-
 	p.totalPixels = MAX_TOTAL_REGIONS * p.procRegioniSize * p.procRegionjSize;
 }
 void storageInit()
@@ -233,7 +232,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	storageInit();
 	
 	
-	while(1)
+	while(stageinCalibration <= 2)
 	{
 		img = cvQueryFrame(capture);
 		cvCopy( img, dst, NULL);
@@ -517,10 +516,9 @@ int _tmain(int argc, _TCHAR* argv[])
 	printf("Adjust the boundaries to pinpoint the pupil. Then adjust threshold until pupil region is approximately filled\n");
 	printf("Press G when finished\n");	
 	int updateValues = 1;
-	while(1)
+	while(stageinCalibration <=2)
 	{
 		cvCopy(dst[0], tempImg, NULL);
-			
 		Calibration(tempImg, updateValues);
 		#ifdef DISPLAY_OUTPUT
 			//  Show the image in the window
@@ -583,10 +581,17 @@ int _tmain(int argc, _TCHAR* argv[])
 			p.iFinish = fileParam[2];
 			p.jStart = fileParam[3];
 			p.jFinish = fileParam[4];
-		#endif	
-		storageDestroy();
-		computeParameters(p.imgWidth, p.imgHeight);
-		storageInit();
+			stageinCalibration = fileParam[5];
+			calibDirection = fileParam[6];
+		#endif
+		
+			if (stageinCalibration == 2)
+			{
+				processFrame(dst[i]);
+			}
+			storageDestroy();
+			computeParameters(p.imgWidth, p.imgHeight);
+			storageInit();
 
 	}
 
