@@ -33,3 +33,6 @@ Relayout:
 	+ VDD_5V doesn’t supply power? SYS_5V does
 	- Ground /OE for level shifter
 	- Add switch to turn on voltages for camera
+	
+REV2
+1 DIR and 2DIR of translater should hook to VCCA
