@@ -1,3 +1,13 @@
+/*
+ * \file eyecu_pins.h
+ *
+ * \brief This file defines the pins and pin addresses
+ * used in the project
+ *
+ * \author Mike Mozingo
+ *
+ */
+
 #ifndef EYECU_PINS_H_
 #define EYECU_PINS_H_
 

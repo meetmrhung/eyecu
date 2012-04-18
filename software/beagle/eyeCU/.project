@@ -80,11 +80,4 @@
 		<nature>org.eclipse.cdt.core.ccnature</nature>
 		<nature>org.eclipse.cdt.managedbuilder.core.ScannerConfigNature</nature>
 	</natures>
-	<linkedResources>
-		<link>
-			<name>Release/eyeCU.out</name>
-			<type>1</type>
-			<locationURI>EXTERNAL_BUILD_ARTIFACT</locationURI>
-		</link>
-	</linkedResources>
 </projectDescription>
