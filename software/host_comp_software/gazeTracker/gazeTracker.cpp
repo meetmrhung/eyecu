@@ -190,12 +190,26 @@ int _tmain(int argc, _TCHAR* argv[])
 	int depth = 8;			//  8 bits per channel per pixel
 
 	uchar* data;			//  Type cast for image data
+	int cameraIndex = 0;
+	int updateValues = 1;
+	if(argc > 1)
+	{
+		cameraIndex = atoi((char*)argv[1]);
+		printf("Using camera %u\n", cameraIndex);
+	}
 
 	time_t t_start,t_end;
 	double sec, fps_measure;
 
 	//  Capture from video device #1
-	CvCapture* capture = cvCaptureFromCAM(0);
+	CvCapture* capture = cvCaptureFromCAM(cameraIndex);
+
+	if(capture == 0)
+	{
+		printf("Couldn't open camera.\n");
+		_getch();
+		return 1;
+	}
 
 	//  Modify capture resolution
 	cvSetCaptureProperty( capture, CV_CAP_PROP_FRAME_WIDTH, 640);
@@ -235,7 +249,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	{
 		img = cvQueryFrame(capture);
 		cvCopy( img, dst, NULL);
-		Calibration(dst);
+		Calibration(dst, updateValues);
 		#ifdef DISPLAY_OUTPUT
 			//  Show the image in the window
 			cvShowImage("mainWin", dst );
@@ -501,12 +515,14 @@ int _tmain(int argc, _TCHAR* argv[])
 	IplImage* tempImg = cvCreateImage(cvSize(frameW, frameH), depth, channels);
 	//  OpenCV reference says we shouldn't modify the output of cvQueryFrame
 	//  so this is used to store a copy.
+	printf("Reading %u frames...", numFrames);
 	for(i = 0; i < numFrames; ++i)
 	{
 		img = cvQueryFrame(capture);
 		dst[i]  = cvCreateImage(cvSize(frameW, frameH), depth, channels);
 		cvCopy(img, dst[i], NULL);
 	}
+	printf("Done\n");
 	
 	computeParameters(frameW, frameH);
 	storageInit();
