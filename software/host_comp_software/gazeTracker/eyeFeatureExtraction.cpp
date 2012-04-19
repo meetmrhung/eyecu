@@ -146,11 +146,14 @@ void getConnectedRegions(int threshold)
 	int currentPixel;
 	point pt;
 	int currentRegion = 0;
-	pointStackElement* stackHead = 0;
-
+	point *pointStack;
+	int stackIndex;	
 	int maxSizeOverall = 0;
 	int maxSizeProper = 0;
 	
+	pointStack = (point*)malloc(procRegionArea * sizeof(point));
+	stackIndex = 0;
+
 	memset(processedPixels, 0,width*height*sizeof( unsigned char));
 	memset(cRBinary, 0, totalPixels * sizeof(unsigned char));
 	memset(cRMap, 0, totalPixels * sizeof(int));
@@ -167,14 +170,14 @@ void getConnectedRegions(int threshold)
 				if( gSImg[I2DFULL(i,j)] < threshold && processedPixels[I2DFULL(i,j)] == 0 )
 				{
 					currentPixel = 0;
-					pt.x = i; pt.y = j;
-					pointStackPush(&stackHead, i, j);
+					pt.x = i; pt.y = j;					
+					pointStack[stackIndex++] = pt;
 					processedPixels[I2DFULL(i,j)] = 1;
 
 					//  Do flood fill algorithm
-					while(stackHead != 0)
+					while(stackIndex != 0)
 					{
-						pt = pointStackPop(&stackHead);		
+						pt = pointStack[--stackIndex];
 						coord = I3D(currentRegion, pt.x-iStart, pt.y-jStart);
 						cRBinary[coord] = 1;
 						cRMap[coord] = currentPixel;
@@ -183,25 +186,29 @@ void getConnectedRegions(int threshold)
 
 						if( ( pt.x + 1 <= iFinish ) && ( processedPixels[I2DFULL(pt.x + 1, pt.y)] == 0 ) && ( gSImg[I2DFULL(pt.x + 1, pt.y)] < threshold ))
 						{
-							pointStackPush(&stackHead, pt.x + 1, pt.y);
+							pointStack[stackIndex].x = pt.x + 1;
+							pointStack[stackIndex++].y = pt.y;
 							processedPixels[I2DFULL(pt.x + 1, pt.y)] = 1;
 						}
 
 						if( ( pt.x - 1 >= iStart ) && ( processedPixels[I2DFULL(pt.x - 1, pt.y)] ==  0 ) && ( gSImg[I2DFULL(pt.x - 1, pt.y)] < threshold ))
 						{
-							pointStackPush(&stackHead, pt.x - 1, pt.y);
+							pointStack[stackIndex].x = pt.x - 1;
+							pointStack[stackIndex++].y = pt.y;
 							processedPixels[I2DFULL(pt.x - 1, pt.y)] = 1;
 						}
 
 						if( ( pt.y + 1 <= jFinish ) && ( processedPixels[I2DFULL(pt.x, pt.y + 1)] == 0 ) && ( gSImg[I2DFULL(pt.x, pt.y + 1)] < threshold ))
 						{
-							pointStackPush(&stackHead, pt.x, pt.y + 1);
+							pointStack[stackIndex].x = pt.x;
+							pointStack[stackIndex++].y = pt.y + 1;
 							processedPixels[I2DFULL(pt.x, pt.y + 1)] = 1;
 						}
 
 						if( ( pt.y  - 1 >= jStart ) && ( processedPixels[I2DFULL(pt.x, pt.y - 1)] == 0 ) && ( gSImg[I2DFULL(pt.x, pt.y - 1)] < threshold ))
 						{
-							pointStackPush(&stackHead, pt.x, pt.y - 1);
+							pointStack[stackIndex].x = pt.x;
+							pointStack[stackIndex++].y = pt.y - 1;
 							processedPixels[I2DFULL(pt.x, pt.y - 1)] = 1;
 						}
 					}  //  End flood fill
@@ -235,6 +242,7 @@ void getConnectedRegions(int threshold)
 		#ifdef DEBUG_OUTPUT
 			printf("Connected regions found: %u\n", cRCount);
 		#endif
+		free(pointStack);
 }
 
 

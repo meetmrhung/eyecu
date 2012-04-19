@@ -1,17 +1,20 @@
+#ifndef eFEParam_
+#define eFEParam_
+
 //#define DEBUG_MAIN									//  Exits directly after compile
 //#define DEBUG_OUTPUT
 
-#define CALIBRATION_ACTIVE					//  Allow calibration
+//#define CALIBRATION_ACTIVE					//  Allow calibration
 //#define CAPTURE_CAMERA						//  Capture from camera if defined, else from video file
-#define DISPLAY_OUTPUT						//  Shows video output in a window
+//#define DISPLAY_OUTPUT						//  Shows video output in a window
 
 #define CAPTURE_VIDEO
 #define RECORD_OUTPUT							//  Records output to p.outFile
-#define VIDEO_STEP_THROUGH						//  Requires a key press to advance to next frame in video
+//#define VIDEO_STEP_THROUGH						//  Requires a key press to advance to next frame in video
 
 //#define MOVE_CURSOR
 
-#define GET_PARAMETERS_FROM_PYTHON
+//#define GET_PARAMETERS_FROM_PYTHON
 
 #define SHOW_PROCESSING_REGION					//  Draw processing region
 #define SHOW_THRESHOLD_PIXELS					//  Color thresholded pixels
@@ -27,7 +30,10 @@
 #define I2D(K,I) ((K) * p.procRegioniSize * p.procRegionjSize + (I))
 #define I3D(K,X,Y) ((K) * p.procRegioniSize * p.procRegionjSize + (X) * p.procRegionjSize + (Y))
 
-#include "pointStack.h"
+struct point
+{
+	int x,y;
+};
 
 struct param
 {
@@ -101,3 +107,4 @@ enum resultType
 	isBlink,			
 	isPupil
 };
+#endif

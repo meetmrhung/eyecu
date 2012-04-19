@@ -1,6 +1,7 @@
 #ifndef eyeFeatureExtraction_
 #define eyeFeatureExtraction_
-#include "pointStack.h"
+#include "eFEParam.h"
+
 //  Current function: modifies img by indicated threshold values
 //  Goal: Create cR, cRSizes, cRCount
 void processFrame(IplImage *img);
