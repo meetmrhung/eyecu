@@ -51,6 +51,7 @@ param p = {
 	8,					//  minxChangeR
 	14,					//  minyChangeU
 	5,					//  minyChangeD
+	100,				//  maxcentroidChange
 
 	5,					//	maxNumFrames
 
@@ -85,7 +86,8 @@ int cursorCommand = 2;				//	Stores the cursor command (related to procResult). 
 int prevResultType;					//  stores the processing result of the previous frame. Used to assure consecutive number of frames in particular direction. 
 double maxLengthConnected;			//  Maximum length of the connected region allowed to pass as the pupil
 double minLengthConnected;			//  Minimum length of the connected region allowed to pass as the pupil
-int cursorSpeed = 5;
+int cursorSpeed = 5;				
+point prevCentroid;					// Keeps track of previous centroid
 
 
 void computeParameters(int width, int height)
@@ -590,6 +592,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		}
 		printf("T: %u, S: %.2lf, C: (%u,%u)\n",p.initThreshold, p.refSize, p.refCentroid.x, p.refCentroid.y);
 		printf("MinL: %u, MinR: %u, MinD: %u, MinU: %u\n", p.minxChangeL, p.minxChangeR, p.minyChangeD, p.minyChangeU);
+		prevCentroid = p.refCentroid;
 
 		#ifdef GET_PARAMETERS_FROM_PYTHON			
 			p.initThreshold = fileParam[0];

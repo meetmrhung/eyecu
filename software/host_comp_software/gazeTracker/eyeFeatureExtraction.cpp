@@ -32,10 +32,13 @@ extern double maxLengthConnected;
 extern double minLengthConnected;
 extern point dirArray[5];
 extern int cursorSpeed;
+extern point prevCentroid;
 
 #define RGB2GS(X,Y) 0.1140*data[(X)*step+(Y)*channels+0]+0.5870*data[(X)*step+(Y)*channels+1]+0.2989*data[(X)*step+(Y)*channels+2]
 
 #define I2DFULL(X,Y) ((X)*width + (Y))
+#define MOUSEEVENTF_LEFTDOWN 0x0002
+#define MOUSEEVENTF_LEFTUP 0x0004
 
 void processFrame(IplImage *img)
 {
@@ -87,6 +90,7 @@ void processFrame(IplImage *img)
 	else
 	{
 		centroid.x = 0; centroid.y = 0;
+
 	}
 
 	#ifdef CALIBRATION_ACTIVE
@@ -250,10 +254,13 @@ void getConnectedRegions(int threshold)
 int findUnityRatio()
 {
 	int i,j,k;
-	int lengthx, lengthy = 0;	
-	int xcount, ycount = 0;								// horizontal and vertical length of the image
-	double dummyratio = 0;									//dummy aspect ratio
-	int unityIndex = -1;										// Output index value 
+	int lengthx, lengthy = 0;		
+	int xcount, ycount = 0;									// horizontal and vertical length of the image
+	double dummyratio = 0;									// dummy aspect ratio
+	int unityIndex = -1;									// Output index value 
+	point candidateCentroid;								// centroid of the candidate region
+	double centroidChange;									// The amount that the candidate region's centroid changed from centroid of previously found pupil
+	
 	maxLengthConnected = p.lengthRegion*p.lengthMaxRatio;
 	minLengthConnected = p.lengthRegion*p.lengthMinRatio; 
 	candidateRegionCount = 0;
@@ -286,8 +293,18 @@ int findUnityRatio()
 				ycount = lengthy;
 			}
 		}
-
+		candidateCentroid = computeCentroid(k);
+		if (procResult != isBlink)
+		{
+			centroidChange = sqrt((double)(candidateCentroid.x-prevCentroid.x)*(candidateCentroid.x-prevCentroid.x)+(candidateCentroid.y-prevCentroid.y)*(candidateCentroid.y-prevCentroid.y));
+		}
+		else
+		{	
+			centroidChange = 0;
+		}
+		
 		cRAspectRatio[k] = (double) (ycount)/(xcount);
+
 		#ifdef DEBUG_OUTPUT
 			printf("Region: %u\n", k);
 			printf("Size: %u\n", cRSizes0[k]);
@@ -310,15 +327,17 @@ int findUnityRatio()
 			else
 			{
 				// Additional check to make sure that the x length and y length of the candidate region is acceptable
-				if (ycount < maxLengthConnected && ycount > minLengthConnected && xcount < maxLengthConnected && xcount > minLengthConnected)
+				if (ycount < maxLengthConnected && ycount > minLengthConnected && xcount < maxLengthConnected && xcount > minLengthConnected && centroidChange < p.maxcentroidChange)
 				{
 					candidateRegionIndices[candidateRegionCount++] = k;
 					if (abs(dummyratio-1) > abs(cRAspectRatio[k]-1))
 					{
 						dummyratio = cRAspectRatio[k];
 						unityIndex = k;
+						prevCentroid = candidateCentroid;
 					}
 					procResult = isPupil;
+
 				}
 			}
 		#else
@@ -363,6 +382,7 @@ void generateCursorCommand(point centroid)
 {
 	int xdist = centroid.x - p.refCentroid.x;
 	int ydist = centroid.y - p.refCentroid.y;
+	int i;
 	
 	if (procResult !=  isBlink)
 	{
@@ -420,12 +440,35 @@ void generateCursorCommand(point centroid)
 	prevResultType = procResult;
 
 	#ifdef MOVE_CURSOR
+		INPUT Input;
 		printf("Proc result: %u\n", procResult);
-		if(procResult != isBlink)
+		if(cursorCommand != isBlink)
 		{
 			POINT mypoint;
 			GetCursorPos(&mypoint);
 			SetCursorPos(mypoint.x + cursorSpeed*dirArray[procResult].x, mypoint.y + cursorSpeed*dirArray[procResult].y);
+		}
+		else
+		{
+			
+				// Left mouse button down
+				Input.type      = INPUT_MOUSE;
+				Input.mi.dwFlags  = MOUSEEVENTF_LEFTDOWN;
+				::SendInput(1,&Input,sizeof(INPUT));
+				
+				// Left mouse button up
+				Input.mi.dwFlags  = MOUSEEVENTF_LEFTUP;
+				::SendInput(1,&Input,sizeof(INPUT));
+			
+				// Left mouse button down
+				Input.type      = INPUT_MOUSE;
+				Input.mi.dwFlags  = MOUSEEVENTF_LEFTDOWN;
+				::SendInput(1,&Input,sizeof(INPUT));
+				
+				// Left mouse button up
+				Input.mi.dwFlags  = MOUSEEVENTF_LEFTUP;
+				::SendInput(1,&Input,sizeof(INPUT));
+			
 		}
 	#endif
 	

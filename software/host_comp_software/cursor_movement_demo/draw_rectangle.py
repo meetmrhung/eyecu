@@ -1,6 +1,7 @@
 import struct
 import time
 import cursorMovement
+from ctypes import*
 
 #  Convert integers into direction vectors
 mapping = [[0,0],[0,0],[0,0],[1,0],[-1,0],[0,-1],[0,1]]
@@ -24,6 +25,7 @@ while 1:
 		break
 	myint=struct.unpack('i', data)[0]
 	cursorMovement.dp(mapping[myint][0], mapping[myint][1])
+	
 	print mapping[myint]
 	time.sleep(0.0333333)
 print 'done'
