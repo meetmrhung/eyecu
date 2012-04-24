@@ -54,6 +54,7 @@ param p = {
 	100,				//  maxcentroidChange
 
 	5,					//	maxNumFrames
+	10,					// minBlinks
 
 	4,					//  maxAdaptations
 	{8,4,2,1},			//  magThreshChange
@@ -88,6 +89,7 @@ double maxLengthConnected;			//  Maximum length of the connected region allowed 
 double minLengthConnected;			//  Minimum length of the connected region allowed to pass as the pupil
 int cursorSpeed = 5;				
 point prevCentroid;					// Keeps track of previous centroid
+int numBlinks = 0;
 
 
 void computeParameters(int width, int height)

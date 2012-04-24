@@ -33,12 +33,13 @@ extern double minLengthConnected;
 extern point dirArray[5];
 extern int cursorSpeed;
 extern point prevCentroid;
+extern int numBlinks;
 
 #define RGB2GS(X,Y) 0.1140*data[(X)*step+(Y)*channels+0]+0.5870*data[(X)*step+(Y)*channels+1]+0.2989*data[(X)*step+(Y)*channels+2]
 
 #define I2DFULL(X,Y) ((X)*width + (Y))
-#define MOUSEEVENTF_LEFTDOWN 0x0002
-#define MOUSEEVENTF_LEFTUP 0x0004
+//#define MOUSEEVENTF_LEFTDOWN 0x0002
+//#define MOUSEEVENTF_LEFTUP 0x0004
 
 void processFrame(IplImage *img)
 {
@@ -417,6 +418,14 @@ void generateCursorCommand(point centroid)
 			}
 		}
 	}
+		if (procResult == isBlink)
+		{
+			numBlinks++;
+		}
+		else
+		{
+			numBlinks = 0;
+		}
 		if (prevResultType == procResult)
 		{
 			consecDirFrame++;
@@ -440,35 +449,40 @@ void generateCursorCommand(point centroid)
 	prevResultType = procResult;
 
 	#ifdef MOVE_CURSOR
-		INPUT Input;
+	INPUT Input=  {0};
 		printf("Proc result: %u\n", procResult);
 		if(cursorCommand != isBlink)
 		{
 			POINT mypoint;
 			GetCursorPos(&mypoint);
-			SetCursorPos(mypoint.x + cursorSpeed*dirArray[procResult].x, mypoint.y + cursorSpeed*dirArray[procResult].y);
+			SetCursorPos(mypoint.x + cursorSpeed*dirArray[cursorCommand].x, mypoint.y + cursorSpeed*dirArray[cursorCommand].y);
 		}
 		else
 		{
-			
+			if (numBlinks > p.minBlinks)
+			{
 				// Left mouse button down
 				Input.type      = INPUT_MOUSE;
 				Input.mi.dwFlags  = MOUSEEVENTF_LEFTDOWN;
-				::SendInput(1,&Input,sizeof(INPUT));
+				SendInput(1,&Input,sizeof(INPUT));
 				
 				// Left mouse button up
+				::ZeroMemory(&Input,sizeof(INPUT));
 				Input.mi.dwFlags  = MOUSEEVENTF_LEFTUP;
-				::SendInput(1,&Input,sizeof(INPUT));
-			
+				SendInput(1,&Input,sizeof(INPUT));
+				
 				// Left mouse button down
+				::ZeroMemory(&Input,sizeof(INPUT));
 				Input.type      = INPUT_MOUSE;
 				Input.mi.dwFlags  = MOUSEEVENTF_LEFTDOWN;
-				::SendInput(1,&Input,sizeof(INPUT));
+				SendInput(1,&Input,sizeof(INPUT));
 				
 				// Left mouse button up
+				::ZeroMemory(&Input,sizeof(INPUT));
 				Input.mi.dwFlags  = MOUSEEVENTF_LEFTUP;
-				::SendInput(1,&Input,sizeof(INPUT));
-			
+				SendInput(1,&Input,sizeof(INPUT));
+				numBlinks = 0;
+			}
 		}
 	#endif
 	

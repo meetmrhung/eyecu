@@ -12,7 +12,7 @@
 #define RECORD_OUTPUT							//  Records output to p.outFile
 #define VIDEO_STEP_THROUGH						//  Requires a key press to advance to next frame in video
 
-//#define MOVE_CURSOR
+#define MOVE_CURSOR
 
 //#define GET_PARAMETERS_FROM_PYTHON
 
@@ -86,7 +86,8 @@ struct param
 	double		maxcentroidChange;		// The tolerance for change in centroid of candidate pupil from previously found pupil to consider the candidate region as pupil.
 	
 	// Number of frames with a particular direction before moving the cursor in that direction
-	int			maxNumFrames;	
+	int			maxNumFrames;
+	int			minBlinks;
 
 	// Maximum number of threshold adaptations and the change in magnitude of threshold:
 	int			maxAdaptations;
