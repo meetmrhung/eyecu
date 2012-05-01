@@ -1,0 +1,7 @@
+#!/bin/bash
+for i in {0..256}; do
+	stuff="/dev/ttyS$i"
+	echo $stuff
+	echo test > $stuff
+done
+
