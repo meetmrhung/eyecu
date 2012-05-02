@@ -36,7 +36,7 @@ x_duck = 0
 y_duck = randint(10, 350)
 
 points = 0
-speed = 2
+speed = 1
 missed = False
 notmissed = True
 restart = False
