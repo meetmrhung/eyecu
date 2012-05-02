@@ -441,6 +441,15 @@ void generateCursorCommand(point centroid)
 		consecDirFrame = 0;
 		cursorCommand = procResult;
 	}
+	if (cursorCommand ~= isBlink)
+	{
+		sendCursorCommand(cursorCommand);
+	}
+	if (numBlinks > p.minBlinks)
+	{
+		sendCursorCommand(cursorCommand);
+	}
+	
 	#ifdef DEBUG_OUTPUT
 			printf("The output direction for this frame is: %d\n", procResult);
 			printf("The cursor command is: %d\n", cursorCommand);
