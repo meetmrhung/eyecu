@@ -10,6 +10,8 @@ from random import randint
 
 pygame.init()
 
+ccount = 100
+
 # Define black and white
 black = (0, 0, 0)
 white = (255, 255, 255)
@@ -61,6 +63,7 @@ while game_running:
         # This is used to register the mouse click
         elif event.type == MOUSEBUTTONDOWN:
             x_click, y_click = pygame.mouse.get_pos()
+            ccount = 0
     # Starting position of the reticle
     position = (x_position - 50, y_position - 50)
     # Move the duck forward
@@ -85,7 +88,9 @@ while game_running:
     screen.blit(pygame.font.SysFont("tahoma", 20).render("Points: " + str(points), True, white), (450, 10))
 
     # Threshold for duck to be in the reticle to be a hit
+	
     if notmissed:
+        ccount = ccount + 1
         if x_click in range(x_duck * speed - 20, x_duck * speed + 20) and y_click in range(y_duck - 30, y_duck + 30):
             # Play hit audio
             pygame.mixer.music.load("hit.mp3")
@@ -97,6 +102,9 @@ while game_running:
             y_duck = randint(10, 350)
         # Draw the new duck
         screen.blit(pygame.image.load("duck.gif"), (x_duck * speed, y_duck))
+        if ccount > 30 	:
+            x_click = 0
+            y_click = 0
 
     if missed:
         # If the duck is missed, then load the dog image
@@ -113,7 +121,7 @@ while game_running:
             x_duck = 0
             y_duck = randint(10, 350)
             restart = False
- 
+
     screen.blit(pygame.image.load("reticle.gif").convert(), position)
     pygame.display.update()
 
