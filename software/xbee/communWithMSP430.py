@@ -1,4 +1,3 @@
-#! /usr/bin/env python
 """\
 Scan for serial ports.
 
@@ -11,7 +10,6 @@ successful.
 """
 
 import serial
-from array import *
 import time
 import cursorCommand
 
@@ -33,24 +31,14 @@ if __name__=='__main__':
     for n,s in scan():
         print "(%d) %s" % (n,s)
 
-totalBytes = 0;
-Commands = array('i',[0, 0, 1, 1 ,1 , 1, 1, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4])
-
 # Define serial port communication with particular baudrate and timeout (defining how long we wait to read the port before program quits) 
-ser = serial.Serial(n,baudrate = 9600,timeout = 1);
+ser = serial.Serial(n,baudrate = 9600,timeout = 1)
 
-#Writing cursor commands into port
-for i in range(0,len(Commands)):
-	numBytes = ser.write(Commands[i]);
-	totalBytes = totalBytes+numBytes;
-	
-#reading port and calling function to generate cursor command	
-for j in range(0,totalBytes):
-	value =  ser.read(1);
-	cursorCommand.result(value);
-ser.close()	
-
-	
+# read characters coming in from the port, and send to the cursorCommand function
+while True:
+    command = ser.read()
+    print a;
+    cursorCommand.result(value)
 	
 	
 

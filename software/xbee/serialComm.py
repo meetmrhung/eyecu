@@ -23,3 +23,9 @@ def scan():
 
 ports = scan()
 print ports
+
+ser = serial.Serial(16,baudrate = 9600, timeout = 1)
+
+while True:
+    command = ser.read()
+    print command

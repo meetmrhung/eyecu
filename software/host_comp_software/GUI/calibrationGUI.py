@@ -230,8 +230,10 @@ if os.path.exists(scriptpath):
 root.grid()
 
 app = App(root)
-
-map = mmap.mmap(0,256, tagname='Local\\GazeTrackerFileMapping')			#  Create file map
+with open("rofl", "wb") as f:
+	f.write("wubwubwubwubwubwubwubwubwubwubwubwubwubwubwub")
+with open("rofl", "r+b") as f:
+	map = mmap.mmap(f.fileno(),0)			#  Create file map
 root.mainloop()
 
 map.close()																#  Close file map
