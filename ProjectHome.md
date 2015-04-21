@@ -1,0 +1,1 @@
+The project contains both hardware and software specifications for a system to register eye movements and send control to a computer.
